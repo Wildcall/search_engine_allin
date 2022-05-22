@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="telephone=no" name="format-detection">
+</head>
+<body>
+<h2>
+  <span th:text="${name}"></span><br>
+</h2>
+<p>
+  Ваша почта<br>
+  <b><span th:text="${email}"></span></b><br>
+  была указана во время регистрации на Search Engine, если вы этого не делали просто проигнорируйте это сообщение.
+  Для активации почты нажмите на ссылку ниже:<br>
+  <b><a th:href="${confirmLink}">Активировать</a></b>
+</p>
+
+<p>
+  Дата регистрации<br>
+  <b><span th:text="${registrationDate}"></span></b>
+</p>
+</body>
+</html>

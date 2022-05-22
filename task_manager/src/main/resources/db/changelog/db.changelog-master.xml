@@ -1,0 +1,129 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="07.04.2022-init" author="Nikolay Malygin">
+        <createTable tableName="_app_user">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="email"                    type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="last_action_time"         type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time"              type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="_setting">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="app_user_id"              type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="name"                     type="varchar(64)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="resource_setting"         type="varchar(500)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="type"                     type="varchar(255)" >
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="_site">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="app_user_id"              type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name"                     type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="path"                     type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status"                   type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_status_time"         type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="_task">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="app_user_id"              type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="site_id"                  type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="setting_id"               type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time"              type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time"               type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="end_time"                 type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="send_notification"        type="bool">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auto_continue"            type="bool">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_freq_in_ms"         type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stat_id"                  type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="type"                     type="varchar(255)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="task_state"               type="varchar(64)" >
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="_app_user" indexName="_app_user_email_index">
+            <column name="email"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="_setting" baseColumnNames="app_user_id"
+                                 constraintName="_setting_app_user_id_app_user_id"
+                                 referencedTableName="_app_user" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+
+        <addForeignKeyConstraint baseTableName="_site" baseColumnNames="app_user_id"
+                                 constraintName="_site_app_user_id_app_user_id"
+                                 referencedTableName="_app_user" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+
+        <addForeignKeyConstraint baseTableName="_task" baseColumnNames="app_user_id"
+                                 constraintName="_task_app_user_id_app_user_id"
+                                 referencedTableName="_app_user" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+        <addForeignKeyConstraint baseTableName="_task" baseColumnNames="site_id"
+                                 constraintName="_task_site_id_site_id"
+                                 referencedTableName="_site" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+        <addForeignKeyConstraint baseTableName="_task" baseColumnNames="setting_id"
+                                 constraintName="_task_setting_id_setting_id"
+                                 referencedTableName="_setting" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+
+    </changeSet>
+
+</databaseChangeLog>

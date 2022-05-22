@@ -1,0 +1,54 @@
+server:
+  port: 8201
+  error:
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: searcher
+  r2dbc:
+    url: r2dbc:${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
+    pool:
+      initial-size: 2
+      max-size: 20
+      max-idle-time: 5m
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    user: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
+    url: jdbc:${DATABASE_URL}
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: INFO
+#       r2dbc: DEBUG
+
+resource:
+  secret: ${SEARCHER_SECRET}
+  types:
+    task_manager:
+      name: task_manager
+      baseUrl: http://localhost:8080/api/v1
+      secretKey: ${TASK_MANAGER_SECRET}
+      availablePaths:
+        callback: /callback
+    crawler:
+      name: crawler
+      baseUrl: http://localhost:8001/api/v1
+      secretKey: ${CRAWLER_SECRET}
+      availablePaths:
+        page: /page
+    indexer:
+      name: indexer
+      baseUrl: http://localhost:8101/api/v1
+      secretKey: ${INDEXER_SECRET}
+      availablePaths:
+        lemma: /lemma
+        index: /index

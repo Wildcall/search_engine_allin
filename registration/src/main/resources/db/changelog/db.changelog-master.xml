@@ -1,0 +1,58 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="07.04.2022-init" author="Nikolay Malygin">
+        <createTable tableName="_app_user">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="email"                    type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password"                 type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enable"                   type="bool">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_action_time"         type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time"              type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="_role">
+            <column name="id"                       type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name"                     type="varchar(28)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="_app_user_roles">
+            <column name="app_user_id" type="bigint">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="roles_id" type="bigint">
+                <constraints nullable="false" primaryKey="true"/>
+            </column >
+        </createTable>
+
+        <createIndex tableName="_app_user" indexName="_app_user_email_index">
+            <column name="email"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="_app_user_roles" baseColumnNames="app_user_id"
+                                 constraintName="_app_user_roles_app_user_id_app_user_id"
+                                 referencedTableName="_app_user" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+        <addForeignKeyConstraint baseTableName="_app_user_roles" baseColumnNames="roles_id"
+                                 constraintName="_app_user_roles_roles_id_role_id"
+                                 referencedTableName="_role" referencedColumnNames="id"
+                                 deleteCascade="true"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,36 @@
+server:
+  port: 9000
+  error:
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: task-manager
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  datasource:
+    url: jdbc:${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+email:
+  resend: 10
+  callback: http://localhost:3000/email/confirm/token/
+
+resource:
+  secret: ${REGISTRATION_SECRET}
+  expiration:
+    access: 600000
+    refresh: 43200000
+    confirm: 3600000
+  types:
+    notification:
+      name: notification
+      baseUrl: http://localhost:9001/api/v1/notification/send
+      secretKey: ${NOTIFICATION_SECRET}

@@ -1,0 +1,84 @@
+server:
+  port: 9001
+  error:
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: notification
+  liquibase:
+    enabled: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERANAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+resource:
+  secret: ${NOTIFICATION_SECRET}
+
+templates:
+  location:
+    email: /notification/template/email/
+  types:
+    email:
+      success:
+        name: html_success_template
+        fields:
+          name:
+          email:
+          registrationDate:
+      confirm:
+        name: html_confirm_template
+        fields:
+          name:
+          email:
+          registrationDate:
+          confirmLink:
+      task_start:
+        name: html_start_task_template
+        fields:
+          name:
+          taskId:
+          taskType:
+          startTime:
+          sitePath:
+          siteName:
+      task_end:
+        name: html_end_task_template
+        fields:
+          name:
+          taskId:
+          taskType:
+          startTime:
+          endTime:
+          sitePath:
+          siteName:
+      task_interrupt:
+        name: html_interrupt_task_template
+        fields:
+          name:
+          taskId:
+          taskType:
+          startTime:
+          endTime:
+          sitePath:
+          siteName:
+      task_error:
+        name: html_error_task_template
+        fields:
+          name:
+          taskId:
+          taskType:
+          startTime:
+          endTime:
+          sitePath:
+          siteName:
