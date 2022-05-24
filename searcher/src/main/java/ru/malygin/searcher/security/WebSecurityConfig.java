@@ -8,7 +8,12 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import ru.malygin.searcher.security.filter.CustomWebFiler;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,17 +28,28 @@ public class WebSecurityConfig {
         //  @formatter:off
         return http
                 .csrf().disable()
-                .cors().disable()
+                .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
                 .logout().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .authorizeExchange().pathMatchers("/api/v1/sse/**", "/api/v1").permitAll()
+                .authorizeExchange().pathMatchers("/api/v1/sse/**", "/api/v1", "/api/v1/searcher").permitAll()
                 .and()
                 .authorizeExchange().anyExchange().authenticated()
                 .and()
                 .addFilterBefore(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
                 .build();
         //  @formatter:on
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000/"));
+        configuration.setAllowedMethods(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

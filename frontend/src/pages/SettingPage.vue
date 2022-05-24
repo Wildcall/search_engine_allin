@@ -103,6 +103,8 @@ import InfoCard from "@/components/common/info-card.vue";
 import {ResourceType} from "@/models/ResourceType";
 import SettingInfo from "@/components/setting/setting-info.vue";
 import SettingNew from "@/components/setting/setting-new.vue";
+import {useSiteStore} from "@/store/SiteStore";
+import {useTaskStore} from "@/store/TaskStore";
 
 export default defineComponent({
   name: "SettingPage",
@@ -114,6 +116,8 @@ export default defineComponent({
       CRAWLER: ResourceType.CRAWLER,
       INDEXER: ResourceType.INDEXER,
       SEARCHER: ResourceType.SEARCHER,
+      siteStore: useSiteStore(),
+      taskStore: useTaskStore(),
       settingStore: useSettingStore()
     }
   },
@@ -133,6 +137,8 @@ export default defineComponent({
   },
 
   mounted() {
+    this.siteStore.findAll()
+    this.taskStore.findAll()
     this.settingStore.findAll()
   }
 })

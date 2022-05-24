@@ -93,9 +93,12 @@ export const useTaskStore = defineStore({
             TaskService.start(id)
                 .then((r) => {
                     if (r) {
-                        const task = this.tasks.find(obj => obj.id === id) as TaskResponse
+                        const task = this.tasks
+                            .find(obj => obj.id === id) as TaskResponse
                         task.sse = r.data
-                        SseService.subscribe(r.data, task.type)
+                        task.startTime = null
+                        task.endTime = null
+                        SseService.subscribe(r.data, task.type, task)
                     }
                 })
                 .catch(error => errorStore.save(error))
@@ -112,16 +115,16 @@ export const useTaskStore = defineStore({
                         const task = this.tasks.find(obj => obj.id === id) as TaskResponse
                         task.sse = null
                     }
-
                 })
                 .catch(error => errorStore.save(error))
                 .finally(() => this.loading = false)
         },
 
-        clearCache() {
-            console.log('TaskStore / clearCache')
+        async reloadCache() {
+            console.log('TaskStore / reloadCache')
             this.loading = false
             this.tasks = []
+            await this.findAll()
         }
     }
 })

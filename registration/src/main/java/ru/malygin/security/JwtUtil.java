@@ -5,7 +5,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,7 +28,9 @@ public class JwtUtil {
 
     public JwtUtil(ResourceConfig resourceConfig) {
         this.resourceConfig = resourceConfig;
-        this.algorithm = Algorithm.HMAC256(resourceConfig.getSecret().getBytes(StandardCharsets.UTF_8));
+        this.algorithm = Algorithm.HMAC256(resourceConfig
+                                                   .getSecret()
+                                                   .getBytes(StandardCharsets.UTF_8));
         this.jwtVerifier = JWT
                 .require(algorithm)
                 .build();
@@ -44,6 +45,7 @@ public class JwtUtil {
                 .stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
+        log.info("VERIFY {} TOKEN / Email: {}", authority, username);
         return new UsernamePasswordAuthenticationToken(username, null, authority);
     }
 
@@ -53,17 +55,26 @@ public class JwtUtil {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-        return generateToken(appUser, roles, resourceConfig.getExpiration().getAccess());
+        log.info("GENERATE ACCESS TOKEN / Email: {}", appUser.getEmail());
+        return generateToken(appUser, roles, resourceConfig
+                .getExpiration()
+                .getAccess());
     }
 
     public String generateRefreshToken(@NotNull AppUser appUser) {
         List<String> roles = List.of("REFRESH");
-        return generateToken(appUser, roles, resourceConfig.getExpiration().getRefresh());
+        log.info("GENERATE REFRESH TOKEN / Email: {}", appUser.getEmail());
+        return generateToken(appUser, roles, resourceConfig
+                .getExpiration()
+                .getRefresh());
     }
 
     public String generateConfirmToken(@NotNull AppUser appUser) {
         List<String> roles = List.of("CONFIRM");
-        return generateToken(appUser, roles, resourceConfig.getExpiration().getConfirm());
+        log.info("GENERATE CONFIRM TOKEN / Email: {}", appUser.getEmail());
+        return generateToken(appUser, roles, resourceConfig
+                .getExpiration()
+                .getConfirm());
     }
 
     public String generateResourceToken(ResourceType type) {
@@ -71,6 +82,7 @@ public class JwtUtil {
                                                         .getResource(type)
                                                         .getSecretKey()
                                                         .getBytes(StandardCharsets.UTF_8));
+        log.info("GENERATE RESOURCE TOKEN / Type: {}", type);
         return JWT
                 .create()
                 .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 1000))

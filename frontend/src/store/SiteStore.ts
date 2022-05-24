@@ -6,6 +6,7 @@ import {Site} from "@/models/Site";
 import {useTaskStore} from "@/store/TaskStore";
 import {useSettingStore} from "@/store/SettingStore";
 import {SiteStatus} from "@/models/SiteStatus";
+import {TaskStatus} from "@/models/TaskStatus";
 
 export interface SiteState {
     loading: boolean
@@ -29,13 +30,50 @@ export const useSiteStore = defineStore({
             return state.sites
         },
 
+        getSite(state: SiteState): (id: number) => SiteResponse | null {
+            return (id: number) => {
+                const index = state.sites.findIndex(site => site.id === id)
+                if (index === -1) return null
+                return state.sites[index]
+            }
+        },
+
         getProcessingSitesCount(state: SiteState): number {
-            return state.sites.filter(obj => obj.status === SiteStatus.PROCESSING).length
+            const taskStore = useTaskStore()
+            return state.sites
+                .map(site => {
+                    const lng = taskStore.getSiteTask(site.id).filter(task => {
+                        return task.taskState === TaskStatus.START
+                    }).length
+                    return lng === 0 ? 0 : 1
+                })
+                .reduce((prv: number, cur: number) => prv + cur, 0)
         },
 
         getCountSitesWithAllCompleteTasks(state: SiteState): number {
-            state.sites.map(obj => obj.id)
-            return 0
+            const taskStore = useTaskStore()
+            return state.sites
+                .map(site => {
+                    const lng = taskStore.getSiteTask(site.id).filter(task => {
+                        return task.taskState === TaskStatus.COMPLETE
+                    }).length
+                    return lng === 3 ? 1 : 0
+                })
+                .reduce((prv: number, cur: number) => prv + cur, 0)
+
+        },
+
+        getCountSitesWithInterruptTasks(state: SiteState): number {
+            const taskStore = useTaskStore()
+            return state.sites
+                .map(site => {
+                    const lng = taskStore.getSiteTask(site.id).filter(task => {
+                        return task.taskState === TaskStatus.INTERRUPT
+                    }).length
+                    return lng === 0 ? 0 : 1
+                })
+                .reduce((prv: number, cur: number) => prv + cur, 0)
+
         }
     },
 
@@ -75,8 +113,8 @@ export const useSiteStore = defineStore({
             SiteService.delete(id)
                 .then(() => {
                     this.sites = this.sites.filter(obj => obj.id !== id)
-                    taskStore.clearCache()
-                    settingStore.clearCache()
+                    taskStore.reloadCache()
+                    settingStore.reloadCache()
                 })
                 .catch(error => errorStore.save(error))
                 .finally(() => this.loading = false)

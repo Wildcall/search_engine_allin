@@ -74,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().anyRequest().denyAll()
                 .and()
-                .exceptionHandling().accessDeniedHandler(accessDeniedHandlerBean()).authenticationEntryPoint( authenticationEntryPointBean())
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandlerBean()).authenticationEntryPoint(authenticationEntryPointBean())
                 .and()
                 .addFilter(customAuthenticationFilter)
                 .addFilterBefore(new CustomAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

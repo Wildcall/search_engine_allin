@@ -23,6 +23,12 @@ export class Api {
         return this.setupRequestInterceptor(this.setupResponseInterceptor(instance))
     }
 
+    static getSearch(): AxiosInstance {
+        return axios.create({
+            baseURL: ApiConst.API_SEARCH
+        })
+    }
+
     static getSse(sseParam: SseParam, type: ResourceType): EventSource {
         let query: string = {} as string
         if (type === ResourceType.CRAWLER) query = ApiConst.API_CRAWLER_SSE
@@ -51,7 +57,7 @@ export class Api {
                     console.log("Need to update Access Token")
                     const token = StorageService.getLocalRefreshToken()
                     if (token) {
-                        return instance
+                        return axios.create({baseURL: ApiConst.API_AUTH})
                             .get(ApiConst.API_AUTH + '/user/refresh', {headers: {'Authorization': `Bearer ${token}`}})
                             .then((response) => {
                                 const accessToken = response?.data?.access_token

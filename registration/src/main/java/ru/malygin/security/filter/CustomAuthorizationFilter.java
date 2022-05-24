@@ -32,6 +32,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
         String token = authHeader.substring(BEARER.length());
         UsernamePasswordAuthenticationToken authenticationToken;
         try {

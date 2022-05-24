@@ -56,12 +56,12 @@
       </v-row>
     </v-card>
     <v-dialog
-        v-model="confirmDeleteDialog"
+        v-model="showDeleteDialog"
         persistent
     >
       <setting-delete-confirm
           :setting="setting"
-          @close="confirmDeleteDialog = false"
+          @close="showDeleteDialog = false"
           @delete="deleteAction"
       />
     </v-dialog>
@@ -84,7 +84,7 @@ export default defineComponent({
 
   data() {
     return {
-      confirmDeleteDialog: false,
+      showDeleteDialog: false,
       editDialog: false
     }
   },
@@ -98,7 +98,7 @@ export default defineComponent({
   methods: {
     async deleteAction() {
       await this.settingStore.delete((this.setting as any).id)
-          .finally(() => this.confirmDeleteDialog = false)
+          .finally(() => this.showDeleteDialog = false)
     },
   }
 })

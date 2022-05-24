@@ -100,7 +100,6 @@ export default defineComponent({
 
   methods: {
     addSelectorWeight(i: [string, number]) {
-      console.log(i)
       if (i[0] && i[1])
         (this.setting.selectorWeight as any)[i[0]] = i[1]
     }

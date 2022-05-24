@@ -1,5 +1,6 @@
 <template>
   <v-card
+      v-if="site"
       class="bg-grey-lighten-3"
       style="width: 500px"
       elevation="5"
@@ -21,7 +22,7 @@
 
     <div class="pa-4">
       <v-card-content>
-        Вы действительно хотите удалить сайт {{ site.name }}?<br/>
+        Вы действительно хотите удалить сайт {{ site.path }}?<br/>
         При удалении так же будут удаленны все задачи связанные с этим сайтом, продолжить?
       </v-card-content>
 
@@ -39,17 +40,16 @@
   </v-card>
 </template>
 
-<script>
+<script lang="ts">
 import {defineComponent} from "vue";
+import {PropType} from "vue/dist/vue";
+import {SiteResponse} from "@/models/response/SiteResponse";
 
 export default defineComponent({
   name: "site-delete-confirm",
-
   props: {
-    site: {}
-  },
-
-  methods: {}
+    site: Object as PropType<SiteResponse>
+  }
 })
 </script>
 

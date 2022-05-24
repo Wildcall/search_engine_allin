@@ -37,6 +37,7 @@ public class CallbackServiceImpl implements CallbackService {
         //  @formatter:on
 
         task.setTaskState(state);
+        task.setStartTime(resourceCallback.getStartTime());
         task.setEndTime(resourceCallback.getEndTime());
         task.setStatId(resourceCallback.getStatId());
         taskService.update(task);

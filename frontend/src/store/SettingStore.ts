@@ -34,9 +34,9 @@ export const useSettingStore = defineStore({
             }
         },
 
-        getSettingsByType(state: SettingState): (type: ResourceType) => SettingResponse[] {
-            return (type: ResourceType) => {
-                return state.settings.filter(obj => obj.type === type)
+        getSettingsByType(state: SettingState): (type: ResourceType | string) => SettingResponse[] {
+            return (type: ResourceType | string) => {
+                return state.settings.filter(obj => obj.type === type as ResourceType)
             }
         }
     },
@@ -76,16 +76,17 @@ export const useSettingStore = defineStore({
             SettingService.delete(id)
                 .then(() => {
                     this.settings = this.settings.filter(obj => obj.id !== id)
-                    taskStore.clearCache()
+                    taskStore.reloadCache()
                 })
                 .catch(error => errorStore.save(error))
                 .finally(() => this.loading = false)
         },
 
-        clearCache() {
-            console.log('TaskStore / clearCache')
+        async reloadCache() {
+            console.log('SettingStore / reloadCache')
             this.loading = false
             this.settings = []
+            await this.findAll()
         }
     }
 })

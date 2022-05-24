@@ -104,7 +104,7 @@ export default defineComponent({
           $autoDirty: true,
           required: required,
           minLength: minLength(3),
-          maxLength: maxLength(64)
+          maxLength: maxLength(256)
         },
         delayInMs: {
           $autoDirty: true,
