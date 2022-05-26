@@ -11,6 +11,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
+/**
+ * The class that contains the settings of all available services, retrieved from the application.properties file
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Data
 @Configuration
 @Validated
@@ -24,6 +30,13 @@ public class ResourceConfig {
     @NotNull
     private Map<String, ResourceParam> types;
 
+    /**
+     * Returns settings of resource by type of resource
+     * @param type the type of resource - {@link ResourceType}
+     * @see ResourceType
+     * @see ResourceParam
+     * @return the resource settings - {@link ResourceParam}
+     */
     public ResourceParam getResource(ResourceType type) {
         return this.types
                 .keySet()

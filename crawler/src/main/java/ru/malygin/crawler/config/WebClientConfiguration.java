@@ -16,11 +16,21 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The class contains a method that returns the configured {@link WebClient}
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
 public class WebClientConfiguration {
 
+    /**
+     * Return configured WebClient
+     * @return the configured WebClient
+     */
     @Bean
     public WebClient getWebClient() {
         return WebClient

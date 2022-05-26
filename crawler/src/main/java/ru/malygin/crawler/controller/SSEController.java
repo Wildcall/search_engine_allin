@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import ru.malygin.crawler.sse.PublisherFactory;
 
+/**
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("api/v1/sse")

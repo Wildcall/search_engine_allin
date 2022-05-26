@@ -1,6 +1,5 @@
 package ru.malygin.crawler.crawler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,17 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * The class that performs the distribution of tasks for crawling and downloading sites, parsing content and saving the site content to the database.
+ * A class object can be created using {@link Builder}
+ *
+ * @author Nikolay Malygin
+ * @version 1.0
+ * @see PageFetcher
+ * @see LinkParser
+ * @see PageSaver
+ */
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -61,6 +71,15 @@ public final class Crawler implements Runnable {
         }
     }
 
+    /**
+     * The method initializes all child services, and starts the algorithm to scan site, the parsing and saving site
+     *
+     * @param task                the task for this service {@link Task}
+     * @param currentRunningTasks the map of all tasks for this service
+     * @see PageFetcher
+     * @see LinkParser
+     * @see PageSaver
+     */
     public void start(Task task,
                       Map<Task, Crawler> currentRunningTasks) {
         //  @formatter:off
@@ -104,6 +123,9 @@ public final class Crawler implements Runnable {
         //  @formatter:on
     }
 
+    /**
+     * The method interrupts the algorithm
+     */
     public void stop() {
         stateCode.set(4);
     }
@@ -149,15 +171,16 @@ public final class Crawler implements Runnable {
     }
 
     private void checkNormalComplete() {
-        if (pagesQueue.isEmpty() && linksQueue.isEmpty() && saveQueue.isEmpty() && !pageFetcher
-                .getServe()
-                .get() && !linkParser
-                .getServe()
-                .get() && !pageSaver
-                .getServe()
-                .get()) {
+        //  @formatter:off
+        if (pagesQueue.isEmpty()
+                && linksQueue.isEmpty()
+                && saveQueue.isEmpty()
+                && !pageFetcher.getServe()
+                && !linkParser.getServe()
+                && !pageSaver.getServe()) {
             stateCode.set(3);
         }
+        //  @formatter:on
     }
 
     private void saveAndPublishFinalStat() {
@@ -184,18 +207,10 @@ public final class Crawler implements Runnable {
 
     private void setActualStatistics() {
         statistic.setEndTime(stateCode.get() == 4 || stateCode.get() == 3 ? LocalDateTime.now() : null);
-        statistic.setSavedPages(pageSaver
-                                        .getCompleteTasks()
-                                        .get());
-        statistic.setFetchPages(pageFetcher
-                                        .getCompleteTasks()
-                                        .get());
-        statistic.setErrors(pageSaver
-                                    .getErrorsCount()
-                                    .get());
-        statistic.setLinksCount(linkParser
-                                        .getCompleteTasks()
-                                        .get());
+        statistic.setSavedPages(pageSaver.getCompleteTasks());
+        statistic.setFetchPages(pageFetcher.getCompleteTasks());
+        statistic.setErrors(pageSaver.getErrorsCount());
+        statistic.setLinksCount(linkParser.getCompleteTasks());
     }
 
     private void publishSseEvent() {

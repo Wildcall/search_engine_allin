@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+/**
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Slf4j
 @RestController
 @RequestMapping("api/v1")

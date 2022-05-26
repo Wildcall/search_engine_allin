@@ -9,6 +9,11 @@ import reactor.core.publisher.Flux;
 import ru.malygin.crawler.model.entity.impl.Page;
 import ru.malygin.crawler.service.PageService;
 
+/**
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Slf4j
 @RestController
 @RequestMapping("api/v1/page")

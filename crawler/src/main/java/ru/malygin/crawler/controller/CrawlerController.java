@@ -11,6 +11,11 @@ import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.dto.view.View;
 import ru.malygin.crawler.service.CrawlerService;
 
+/**
+ * @author Nikolay Malygin
+ * @version 1.0
+ */
+
 @Slf4j
 @RestController
 @RequestMapping("api/v1/crawler")

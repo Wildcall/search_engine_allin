@@ -1,6 +1,6 @@
 package ru.malygin.crawler.crawler;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import ru.malygin.crawler.model.entity.impl.Page;
 
 import java.util.Queue;
@@ -8,33 +8,36 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * The class that parse and extract links from page
+ *
+ * @author Nikolay Malygin
+ * @version 1.0
+ * @see SiteFetcher
+ */
+
+@RequiredArgsConstructor
 public class LinkParser implements Runnable {
 
     private final Queue<String> links;
     private final Queue<Page> pages;
     private final Queue<Page> pageToSave;
-    @Getter
     private final AtomicBoolean serve = new AtomicBoolean(false);
-    @Getter
     private final AtomicInteger completeTasks = new AtomicInteger(0);
-    @Getter
-    private Thread currentThread;
     private Boolean runFlag;
 
-    public LinkParser(Queue<String> links,
-                      Queue<Page> pages,
-                      Queue<Page> pageToSave) {
-        this.links = links;
-        this.pages = pages;
-        this.pageToSave = pageToSave;
-    }
-
+    /**
+     * Starts an algorithm that polls the queue with pages ready for parsing, after parsing and extracting links, adds them to the queue for links ready for downloading
+     */
     public void start() {
-        currentThread = new Thread(this);
-        currentThread.setName("ParseLinks-" + new Random().nextLong());
-        currentThread.start();
+        Thread thread = new Thread(this);
+        thread.setName("ParseLinks-" + new Random().nextLong());
+        thread.start();
     }
 
+    /**
+     * Stops an algorithm
+     */
     public void stop() {
         runFlag = false;
     }
@@ -53,5 +56,21 @@ public class LinkParser implements Runnable {
             }
 
         }
+    }
+
+    /**
+     * Returns true if the algorithm executes the task, false otherwise
+     * @return active task presence
+     */
+    public boolean getServe() {
+        return serve.get();
+    }
+
+    /**
+     * Returns the total number of completed tasks
+     * @return completed tasks count
+     */
+    public int getCompleteTasks() {
+        return completeTasks.get();
     }
 }

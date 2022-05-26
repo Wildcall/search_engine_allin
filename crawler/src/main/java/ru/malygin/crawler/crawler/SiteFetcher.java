@@ -3,9 +3,9 @@ package ru.malygin.crawler.crawler;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -25,16 +25,29 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
-@Builder
-@Getter
+@Builder(access = AccessLevel.PRIVATE)
 public class SiteFetcher {
 
     private final String userAgent;
     private final String referrer;
     private final int timeOutTime;
     private final int reconnect;
+    @Getter
     private final int delayTime;
+
+    SiteFetcher(String userAgent,
+                String referrer,
+                int timeOutTime,
+                int reconnect,
+                int delayTime) {
+        this.userAgent = userAgent;
+        this.referrer = referrer;
+        this.timeOutTime = timeOutTime;
+
+
+        this.reconnect = reconnect;
+        this.delayTime = delayTime;
+    }
 
     public static SiteFetcher getFromTask(Task task) {
         return SiteFetcher
