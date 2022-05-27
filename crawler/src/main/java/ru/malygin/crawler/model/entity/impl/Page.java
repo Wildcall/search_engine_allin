@@ -9,13 +9,14 @@ import ru.malygin.crawler.model.dto.BaseDto;
 import ru.malygin.crawler.model.dto.impl.PageDto;
 import ru.malygin.crawler.model.entity.BaseEntity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("_page")
-public class Page implements BaseEntity {
+public class Page implements BaseEntity, Serializable {
 
     @Id
     private Long id;

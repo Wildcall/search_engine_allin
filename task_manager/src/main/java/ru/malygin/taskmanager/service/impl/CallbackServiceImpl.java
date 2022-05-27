@@ -1,6 +1,8 @@
 package ru.malygin.taskmanager.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.malygin.taskmanager.model.ResourceCallback;
@@ -8,6 +10,7 @@ import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
+import ru.malygin.taskmanager.rabbit.LogPublisher;
 import ru.malygin.taskmanager.service.CallbackService;
 import ru.malygin.taskmanager.service.NotificationService;
 import ru.malygin.taskmanager.service.SiteService;
@@ -16,11 +19,13 @@ import ru.malygin.taskmanager.service.TaskService;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class CallbackServiceImpl implements CallbackService {
 
-    private final TaskService taskService;
-    private final SiteService siteService;
-    private final NotificationService notificationService;
+    TaskService taskService;
+    SiteService siteService;
+    NotificationService notificationService;
+    LogPublisher logPublisher;
 
     @Override
     public void process(ResourceCallback resourceCallback) {
@@ -29,6 +34,7 @@ public class CallbackServiceImpl implements CallbackService {
         TaskState state = TaskState.getFromState(resourceCallback.getStatus());
 
         //  @formatter:off
+        logPublisher.publish("CALLBACK RECEIVE / Resource");
         log.info("CALLBACK RECEIVE / Resource: {} / State: {} / Task: {} / ResourceCallback: {}",
                  task.getType(),
                  state.name(),
