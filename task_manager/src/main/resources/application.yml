@@ -31,6 +31,13 @@ logging:
       springframework:
         web: INFO
 
+rabbit:
+  queues:
+    crawler-task-queue: crawler-task-queue
+    indexer-task-queue: indexer-task-queue
+    searcher-task-queue: searcher-task-queue
+    log-queue: log-queue
+
 resource:
   secret: ${TASK_MANAGER_SECRET}
   types:

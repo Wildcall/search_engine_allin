@@ -35,12 +35,7 @@ logging:
         web: INFO
 #       r2dbc: DEBUG
 
-resource:
-  secret: ${CRAWLER_SECRET}
-  types:
-    task_manager:
-      name: task_manager
-      baseUrl: http://localhost:8080/api/v1
-      secretKey: ${TASK_MANAGER_SECRET}
-      availablePaths:
-        callback: /callback
+rabbit:
+  queues:
+    task-queue: crawler-task-queue
+    log-queue: log-queue

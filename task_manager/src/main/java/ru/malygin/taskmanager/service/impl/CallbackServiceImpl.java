@@ -10,7 +10,6 @@ import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
-import ru.malygin.taskmanager.rabbit.LogPublisher;
 import ru.malygin.taskmanager.service.CallbackService;
 import ru.malygin.taskmanager.service.NotificationService;
 import ru.malygin.taskmanager.service.SiteService;
@@ -25,7 +24,6 @@ public class CallbackServiceImpl implements CallbackService {
     TaskService taskService;
     SiteService siteService;
     NotificationService notificationService;
-    LogPublisher logPublisher;
 
     @Override
     public void process(ResourceCallback resourceCallback) {
@@ -34,7 +32,6 @@ public class CallbackServiceImpl implements CallbackService {
         TaskState state = TaskState.getFromState(resourceCallback.getStatus());
 
         //  @formatter:off
-        logPublisher.publish("CALLBACK RECEIVE / Resource");
         log.info("CALLBACK RECEIVE / Resource: {} / State: {} / Task: {} / ResourceCallback: {}",
                  task.getType(),
                  state.name(),

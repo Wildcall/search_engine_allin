@@ -1,13 +1,10 @@
-package ru.malygin.crawler.model.entity.impl;
+package ru.malygin.crawler.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-import ru.malygin.crawler.model.dto.BaseDto;
-import ru.malygin.crawler.model.dto.impl.PageDto;
-import ru.malygin.crawler.model.entity.BaseEntity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,16 +23,6 @@ public class Page implements BaseEntity, Serializable {
     private String content;
     private Integer code;
     private LocalDateTime createTime;
-
-    @Override
-    public BaseDto toBaseDto() {
-        return new PageDto(id,
-                           siteId,
-                           appUserId,
-                           path,
-                           code,
-                           createTime);
-    }
 
     @Override
     public boolean hasRequiredField() {

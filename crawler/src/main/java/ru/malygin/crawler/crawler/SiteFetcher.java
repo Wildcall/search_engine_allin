@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.util.retry.Retry;
 import ru.malygin.crawler.model.Task;
-import ru.malygin.crawler.model.entity.impl.Page;
+import ru.malygin.crawler.model.entity.Page;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.malygin.crawler.model.entity.impl.Page;
+import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.repository.PageRepository;
 import ru.malygin.crawler.service.PageService;
 

@@ -3,10 +3,10 @@ package ru.malygin.crawler.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import ru.malygin.crawler.crawler.Crawler;
-import ru.malygin.crawler.exception.ResponseException;
 import ru.malygin.crawler.model.Task;
+import ru.malygin.crawler.model.TaskAction;
+import ru.malygin.crawler.rabbit.impl.LogSender;
 import ru.malygin.crawler.service.CrawlerService;
 import ru.malygin.crawler.service.PageService;
 
@@ -23,59 +23,67 @@ public class CrawlerServiceImpl implements CrawlerService {
     private final Map<Task, Crawler> currentRunningTasks = new ConcurrentHashMap<>();
     private final PageService pageService;
     private final Crawler.Builder crawlerBuilder;
+    private final LogSender logSender;
 
     @Override
-    public Mono<String> start(Task task) {
+    public void process(Task task,
+                        TaskAction action) {
+        if (action.equals(TaskAction.START))
+            this.start(task);
+        if (action.equals(TaskAction.STOP))
+            this.stop(task);
+    }
+
+    private void start(Task task) {
         Long siteId = task.getSiteId();
         Long appUserId = task.getAppUserId();
 
         //  @formatter:off
         if (currentRunningTasks.get(task) != null){
-            log.warn("CRAWLER / Code: 6001");
-            return ResponseException.monoResponseBadRequest("6001");
+            logSender.send("CRAWLER / Code: 6001");
+            return;
         }
 
         if (currentRunningTasks.keySet().stream().anyMatch(t -> t.getPath().equalsIgnoreCase(task.getPath()))) {
-            log.warn("CRAWLER / Code: 6002");
-            return ResponseException.monoResponseBadRequest("6002");
+            logSender.send("CRAWLER / Code: 6002");
+            return;
         }
 
-
         if (siteNotAvailable(task)) {
-            log.warn("CRAWLER / Code: 6003");
-            return ResponseException.monoResponseBadRequest("6003");
+            logSender.send("CRAWLER / Code: 6003");
+            return;
         }
         //  @formatter:on
 
-        return pageService
+        pageService
                 .deleteAllBySiteIdAndAppUserId(siteId, appUserId)
                 .doOnSuccess(v -> {
                     Crawler crawler = crawlerBuilder.build();
                     crawler.start(task, currentRunningTasks);
                     currentRunningTasks.put(task, crawler);
-                    log.info("CRAWLER / Action: start / TaskId: {} / Path: {} / SiteId: {} / AppUserId: {}",
-                             task.getId(),
-                             task.getPath(), task.getSiteId(), task.getAppUserId());
+                    logSender.send("CRAWLER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
+                                   task.getId(),
+                                   task.getPath(),
+                                   task.getSiteId(),
+                                   task.getAppUserId());
                 })
-                .then(Mono.just("OK"));
+                .subscribe();
     }
 
-    @Override
-    public Mono<String> stop(Task task) {
+    private void stop(Task task) {
         Crawler crawler = currentRunningTasks.get(task);
         if (crawler == null) {
-            log.warn("CRAWLER / Code: 6004");
-            return ResponseException.monoResponseBadRequest("6004");
+            logSender.send("CRAWLER / Code: 6004");
+            return;
         }
         crawler.stop();
         currentRunningTasks.remove(task);
-        log.info("CRAWLER / Action: stop / TaskId: {} / Path: {} / SiteId: {} / AppUserId: {}", task.getId(),
-                 task.getPath(), task.getSiteId(), task.getAppUserId());
-        return Mono.just("OK");
+        logSender.send("CRAWLER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
+                       task.getPath(), task.getSiteId(), task.getAppUserId());
     }
 
     private boolean siteNotAvailable(Task task) {
-        log.info("PING / Resource: {}", task.getPath());
+        logSender.send("PING / Resource: %s", task.getPath());
         try {
             URL url = new URL(task.getPath());
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -84,9 +92,9 @@ public class CrawlerServiceImpl implements CrawlerService {
                 return false;
             }
         } catch (Exception e) {
-            log.error("PING ERROR  / Resource: {} / Message: {}", task.getPath(), e.getMessage());
+            logSender.send("PING ERROR  / Resource: %s / Message: %s", task.getPath(), e.getMessage());
         }
-        log.warn("PING ERROR  / Resource: {}", task.getPath());
+        logSender.send("PING ERROR  / Resource: %s", task.getPath());
         return true;
     }
 }

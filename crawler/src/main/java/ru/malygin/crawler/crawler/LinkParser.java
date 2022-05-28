@@ -1,7 +1,7 @@
 package ru.malygin.crawler.crawler;
 
 import lombok.RequiredArgsConstructor;
-import ru.malygin.crawler.model.entity.impl.Page;
+import ru.malygin.crawler.model.entity.Page;
 
 import java.util.Queue;
 import java.util.Random;

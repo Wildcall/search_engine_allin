@@ -4,17 +4,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.malygin.crawler.model.ResourceCallback;
 import ru.malygin.crawler.model.Task;
-import ru.malygin.crawler.model.entity.impl.Page;
-import ru.malygin.crawler.model.entity.impl.Statistic;
+import ru.malygin.crawler.model.entity.Page;
+import ru.malygin.crawler.model.entity.Statistic;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.crawler.service.StatisticService;
-import ru.malygin.crawler.sse.PublisherFactory;
-import ru.malygin.crawler.sse.event.CrawlerEvent;
-import ru.malygin.crawler.sse.payload.CrawlerEventPayload;
-import ru.malygin.crawler.sse.publisher.CrawlerEventPublisher;
-import ru.malygin.crawler.sse.publisher.PageEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -40,7 +34,6 @@ public final class Crawler implements Runnable {
 
     // init in builder
     private final StatisticService statisticService;
-    private final PublisherFactory publisherFactory;
     private final PageService pageService;
     // init
     private final AtomicInteger stateCode = new AtomicInteger(0);
@@ -52,13 +45,10 @@ public final class Crawler implements Runnable {
     private PageFetcher pageFetcher;
     private PageSaver pageSaver;
     private LinkParser linkParser;
-    private CrawlerEventPublisher crawlerEventPublisher;
-    private PageEventPublisher pageEventPublisher;
     // init in start
     private Task task;
     private Map<Task, Crawler> currentRunningTasks;
     private Statistic statistic;
-    private CrawlerEventPayload crawlerEventPayload;
     private String sitePath;
     // util
     private Long timerCounter;
@@ -89,9 +79,6 @@ public final class Crawler implements Runnable {
         this.sitePath = task.getPath();
         this.currentRunningTasks = currentRunningTasks;
 
-        this.crawlerEventPublisher = publisherFactory.createCrawlerEventPublishers(siteId, appUserId);
-        this.pageEventPublisher = publisherFactory.createPageEventPublisher(siteId, appUserId);
-
         this.pageFetcher = new PageFetcher(linksQueue,
                                            pagesQueue,
                                            SiteFetcher.getFromTask(task));
@@ -103,19 +90,11 @@ public final class Crawler implements Runnable {
         this.pageSaver = new PageSaver(pageService,
                                        saveQueue,
                                        siteId,
-                                       appUserId,
-                                       pageEventPublisher);
+                                       appUserId);
 
         this.statistic = new Statistic();
         this.statistic.setSiteId(siteId);
         this.statistic.setAppUserId(appUserId);
-
-        this.crawlerEventPayload = new CrawlerEventPayload(task.getId(),
-                                                           siteId,
-                                                           appUserId,
-                                                           stateCode.get(),
-                                                           LocalDateTime.now(),
-                                                           statistic);
 
         Thread thread = new Thread(this);
         thread.setName("Crawler-" + sitePath + "-" + appUserId);
@@ -133,13 +112,9 @@ public final class Crawler implements Runnable {
     @Override
     public void run() {
         statistic.setStartTime(LocalDateTime.now());
-
-        publishSseEvent();
-
         timerCounter = System.currentTimeMillis();
 
         stateCode.set(1);
-        publishCallbackEvent();
 
         linksQueue.add(sitePath);
 
@@ -187,21 +162,12 @@ public final class Crawler implements Runnable {
         setActualStatistics();
         statisticService
                 .save(statistic)
-                .doOnSuccess(sink -> {
-                    crawlerEventPayload.setStatusCode(stateCode.get());
-                    publishSseEvent();
-                    publishCallbackEvent();
-                    publisherFactory.deleteCrawlerEventPublisher(crawlerEventPublisher);
-                    publisherFactory.deletePageEventPublisher(pageEventPublisher);
-                })
                 .subscribe();
 
     }
 
     private void publishCurrentStat() {
-        crawlerEventPayload.setStatusCode(stateCode.get());
         setActualStatistics();
-        publishSseEvent();
         timerCounter = System.currentTimeMillis();
     }
 
@@ -213,35 +179,15 @@ public final class Crawler implements Runnable {
         statistic.setLinksCount(linkParser.getCompleteTasks());
     }
 
-    private void publishSseEvent() {
-        CrawlerEvent event = (new CrawlerEvent(crawlerEventId.incrementAndGet(), crawlerEventPayload.clone()));
-        crawlerEventPublisher.publish(event);
-    }
-
-    private void publishCallbackEvent() {
-        //  @formatter:off
-        ResourceCallback resourceCallback =
-                new ResourceCallback(task.getId(),
-                                     stateCode.get(),
-                                     statistic.getStartTime(),
-                                     statistic.getEndTime(),
-                                     statistic.getId());
-        publisherFactory
-                .getPublisher()
-                .publishEvent(resourceCallback);
-        //  @formatter:on
-    }
-
     @Component
     @RequiredArgsConstructor
     public static final class Builder {
 
         private final StatisticService statisticService;
-        private final PublisherFactory PublisherFactory;
         private final PageService pageService;
 
         public Crawler build() {
-            return new Crawler(statisticService, PublisherFactory, pageService);
+            return new Crawler(statisticService, pageService);
         }
     }
 }

@@ -9,6 +9,7 @@ import ru.malygin.taskmanager.config.WebClientConfiguration;
 import ru.malygin.taskmanager.exception.ResourceBadRequestException;
 import ru.malygin.taskmanager.model.ResourceType;
 import ru.malygin.taskmanager.model.entity.impl.Task;
+import ru.malygin.taskmanager.rabbit.impl.TaskSender;
 import ru.malygin.taskmanager.security.JwtUtil;
 import ru.malygin.taskmanager.service.ResourceService;
 
@@ -26,10 +27,13 @@ public class ResourceServiceImpl implements ResourceService {
     private final WebClientConfiguration webClientConfiguration;
     private final ResourceConfig resourceConfig;
     private final JwtUtil jwtUtil;
+    private final TaskSender taskSender;
 
     @Override
     public boolean start(Task task) {
-        String response = sendTask("start", task.getType(), task.toBody());
+        //String response = sendTask("start", task.getType(), task.toBody());
+        String response = "OK";
+        sendRMQTask(task);
         return response.equals("OK");
     }
 
@@ -95,5 +99,9 @@ public class ResourceServiceImpl implements ResourceService {
             log.error("Error logging: {}", e.getMessage());
             throw new ResourceBadRequestException("Unexpected error, please try again later");
         }
+    }
+
+    private void sendRMQTask(Task task) {
+        taskSender.send(task.toBody());
     }
 }

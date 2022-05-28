@@ -1,11 +1,8 @@
 package ru.malygin.crawler.crawler;
 
 import lombok.RequiredArgsConstructor;
-import ru.malygin.crawler.model.entity.impl.Page;
+import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.service.PageService;
-import ru.malygin.crawler.sse.event.PageEvent;
-import ru.malygin.crawler.sse.payload.PageEventPayload;
-import ru.malygin.crawler.sse.publisher.PageEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Queue;
@@ -18,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Nikolay Malygin
  * @version 1.0
- * @see PageEventPublisher
  * @see PageService
  */
 
@@ -29,7 +25,6 @@ public class PageSaver implements Runnable {
     private final Queue<Page> pageToSave;
     private final Long siteId;
     private final Long appUserId;
-    private final PageEventPublisher pageEventPublisher;
     private final AtomicBoolean serve = new AtomicBoolean(false);
     private final AtomicInteger completeTasks = new AtomicInteger(0);
     private final AtomicInteger errorsCount = new AtomicInteger(0);
@@ -64,8 +59,7 @@ public class PageSaver implements Runnable {
 
                 pageService
                         .save(page)
-                        .subscribe(p -> pageEventPublisher.publish(
-                                new PageEvent(completeTasks.get(), PageEventPayload.fromPage(p))));
+                        .subscribe();
 
                 if (page.getCode() != 200) errorsCount.incrementAndGet();
                 completeTasks.incrementAndGet();
