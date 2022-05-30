@@ -1,4 +1,4 @@
-package ru.malygin.crawler.config;
+package ru.malygin.searcher.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.crawler.model.Task;
+import ru.malygin.searcher.model.Task;
 
 import java.util.HashMap;
 import java.util.Map;

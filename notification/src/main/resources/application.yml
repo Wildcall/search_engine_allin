@@ -21,9 +21,16 @@ spring:
           auth: true
           starttls:
             enable: true
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+    port: 5672
 
-resource:
-  secret: ${NOTIFICATION_SECRET}
+rabbit:
+  queues:
+    notification-queue: notification-queue
+    log-queue: log-queue
 
 templates:
   location:

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.malygin.taskmanager.model.ResourceType;
 import ru.malygin.taskmanager.security.JwtUtil;
 
 import javax.servlet.FilterChain;
@@ -37,10 +36,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(BEARER.length());
         UsernamePasswordAuthenticationToken authenticationToken;
         try {
-            if (request.getRequestURI().endsWith("callback"))
-                authenticationToken = jwtUtil.verifyCallbackToken(token);
-            else
-                authenticationToken = jwtUtil.verifyAccessToken(token, ResourceType.REGISTRATION);
+            authenticationToken = jwtUtil.verifyAccessToken(token);
         } catch (Exception e) {
             authenticationToken = new UsernamePasswordAuthenticationToken(null, null, null);
         }

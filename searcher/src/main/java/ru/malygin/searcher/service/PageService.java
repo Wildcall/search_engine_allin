@@ -3,7 +3,7 @@ package ru.malygin.searcher.service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.malygin.searcher.model.SearchResponse;
-import ru.malygin.searcher.model.entity.impl.Page;
+import ru.malygin.searcher.model.entity.Page;
 
 import java.util.List;
 

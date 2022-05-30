@@ -2,7 +2,7 @@ package ru.malygin.indexer.service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.malygin.indexer.model.entity.impl.Index;
+import ru.malygin.indexer.model.entity.Index;
 
 public interface IndexService {
 

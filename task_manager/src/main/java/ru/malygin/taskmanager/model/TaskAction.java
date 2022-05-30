@@ -1,4 +1,4 @@
-package ru.malygin.crawler.model;
+package ru.malygin.taskmanager.model;
 
 public enum TaskAction {
     START,

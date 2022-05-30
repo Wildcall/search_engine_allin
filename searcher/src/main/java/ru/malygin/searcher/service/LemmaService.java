@@ -1,7 +1,7 @@
 package ru.malygin.searcher.service;
 
 import reactor.core.publisher.Mono;
-import ru.malygin.searcher.model.entity.impl.Lemma;
+import ru.malygin.searcher.model.entity.Lemma;
 
 public interface LemmaService {
 

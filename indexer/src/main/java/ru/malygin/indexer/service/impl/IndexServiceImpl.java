@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.malygin.indexer.model.entity.impl.Index;
+import ru.malygin.indexer.model.entity.Index;
 import ru.malygin.indexer.repository.IndexRepository;
 import ru.malygin.indexer.service.IndexService;
 

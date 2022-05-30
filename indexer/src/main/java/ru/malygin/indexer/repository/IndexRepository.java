@@ -3,7 +3,7 @@ package ru.malygin.indexer.repository;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.malygin.indexer.model.entity.impl.Index;
+import ru.malygin.indexer.model.entity.Index;
 
 public interface IndexRepository extends ReactiveCrudRepository<Index, Long> {
 

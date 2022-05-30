@@ -12,7 +12,7 @@ import ru.malygin.taskmanager.model.entity.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
-import ru.malygin.taskmanager.rabbit.impl.TaskSender;
+import ru.malygin.taskmanager.rabbit.TaskSender;
 import ru.malygin.taskmanager.service.AppUserService;
 import ru.malygin.taskmanager.service.ResourceService;
 import ru.malygin.taskmanager.service.TaskService;
@@ -41,8 +41,6 @@ public class ResourceFacadeImpl implements ResourceFacade {
         TaskState taskState = task.getTaskState();
         SiteStatus siteStatus = site.getStatus();
         int order = task.getType().getOrder();
-
-        taskSender.send(task.toBody());
 
         // Any task is already starting for the site
         if (siteStatus.equals(SiteStatus.PROCESSING))

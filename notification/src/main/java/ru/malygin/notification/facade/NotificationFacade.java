@@ -2,9 +2,8 @@ package ru.malygin.notification.facade;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.malygin.notification.exception.BadRequestException;
-import ru.malygin.notification.model.dto.impl.NotificationDto;
-import ru.malygin.notification.model.entity.impl.Notification;
+import ru.malygin.logsenderspringbootstarter.service.LogSender;
+import ru.malygin.notification.model.Notification;
 import ru.malygin.notification.service.NotificationSender;
 
 import java.util.List;
@@ -16,19 +15,24 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationFacade {
 
+    private final LogSender logSender;
     private final Map<String, NotificationSender> map;
 
-    public NotificationFacade(List<NotificationSender> notificationSenders) {
+    public NotificationFacade(LogSender logSender,
+                              List<NotificationSender> notificationSenders) {
+        this.logSender = logSender;
         map = notificationSenders
                 .stream()
                 .collect(Collectors.toMap(NotificationSender::getType, Function.identity()));
     }
 
-    public String send(NotificationDto notificationDto) {
-        String type = notificationDto.getType();
+    public void send(Notification notification) {
+        String type = notification.getType();
         NotificationSender notificationSender = map.get(type);
-        if (notificationSender == null)
-            throw new BadRequestException(type + " not supported");
-        return notificationSender.send((Notification) notificationDto.toBaseEntity());
+        if (notificationSender != null) {
+            notificationSender.send(notification);
+            return;
+        }
+        logSender.error("Type %s not supported", type);
     }
 }

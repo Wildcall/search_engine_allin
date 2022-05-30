@@ -68,6 +68,11 @@
         </dependency>
         <!-- utils -->
         <dependency>
+            <groupId>ru.malygin</groupId>
+            <artifactId>searcher-engine-spring-boot-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>

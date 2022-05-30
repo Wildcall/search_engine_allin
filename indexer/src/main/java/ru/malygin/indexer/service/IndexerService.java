@@ -1,10 +1,9 @@
 package ru.malygin.indexer.service;
 
-import reactor.core.publisher.Mono;
 import ru.malygin.indexer.model.Task;
+import ru.malygin.indexer.model.TaskAction;
 
 public interface IndexerService {
-    Mono<String> start(Task task);
-
-    Mono<String> stop(Task task);
+    void process(Task task,
+                 TaskAction action);
 }

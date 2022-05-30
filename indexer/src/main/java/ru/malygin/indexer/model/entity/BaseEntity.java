@@ -1,9 +1,7 @@
 package ru.malygin.indexer.model.entity;
 
-import ru.malygin.indexer.model.dto.BaseDto;
+import java.io.Serializable;
 
-public interface BaseEntity {
-    BaseDto toBaseDto();
-
+public interface BaseEntity extends Serializable {
     boolean hasRequiredField();
 }

@@ -1,10 +1,10 @@
-package ru.malygin.crawler.config;
+package ru.malygin.notification.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.malygin.crawler.rabbit.LogSender;
+import ru.malygin.logsenderspringbootstarter.service.LogSender;
 
 import javax.annotation.PreDestroy;
 
@@ -16,11 +16,11 @@ public class InitStat {
 
     @EventListener
     public void appReady(ApplicationReadyEvent event) {
-        logSender.send("Application start");
+        logSender.info("Application start");
     }
 
     @PreDestroy
     public void onDestroy() {
-        logSender.send("Application close");
+        logSender.info("Application close");
     }
 }

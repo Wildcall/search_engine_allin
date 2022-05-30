@@ -1,4 +1,4 @@
-package ru.malygin.searcher.rabbit.impl;
+package ru.malygin.searcher.rabbit;
 
 
 import lombok.RequiredArgsConstructor;
@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
+import ru.malygin.logsenderspringbootstarter.service.LogSender;
 import ru.malygin.searcher.model.Task;
 import ru.malygin.searcher.model.TaskAction;
 import ru.malygin.searcher.service.SearcherService;
@@ -29,7 +30,7 @@ public class TaskReceiver {
                         @Header("action") String action) {
         try {
             TaskAction taskAction = TaskAction.valueOf(action);
-            logSender.send("RECEIVE / TaskId: " + task.getId() + " / Action: " + taskAction);
+            logSender.info("RECEIVE / TaskId: " + task.getId() + " / Action: " + taskAction);
             searcherService.process(task, taskAction);
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage());

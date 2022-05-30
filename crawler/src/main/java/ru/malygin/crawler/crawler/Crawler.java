@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see PageSaver
  */
 
-@Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Crawler implements Runnable {
 
@@ -40,7 +39,6 @@ public final class Crawler implements Runnable {
     private final Queue<Page> pagesQueue = new ConcurrentLinkedQueue<>();
     private final Queue<String> linksQueue = new ConcurrentLinkedQueue<>();
     private final Queue<Page> saveQueue = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger crawlerEventId = new AtomicInteger(0);
     // components
     private PageFetcher pageFetcher;
     private PageSaver pageSaver;

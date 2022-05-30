@@ -21,6 +21,11 @@ spring:
     user: ${DATABASE_USER}
     password: ${DATABASE_PASS}
     url: jdbc:${DATABASE_URL}
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+    port: 5672
 
 logging:
   level:
@@ -30,18 +35,11 @@ logging:
         web: INFO
 #       r2dbc: DEBUG
 
-resource:
-  secret: ${INDEXER_SECRET}
-  types:
-    task_manager:
-      name: task_manager
-      baseUrl: http://localhost:8080/api/v1
-      secretKey: ${TASK_MANAGER_SECRET}
-      availablePaths:
-        callback: /callback
-    crawler:
-      name: crawler
-      baseUrl: http://localhost:8001/api/v1
-      secretKey: ${CRAWLER_SECRET}
-      availablePaths:
-        page: /page
+helper:
+  queues:
+    task-queue: indexer-task-queue
+  stat:
+    start: true
+    close: true
+  receiver:
+    task: true

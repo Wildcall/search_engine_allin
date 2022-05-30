@@ -7,7 +7,7 @@ server:
 
 spring:
   application:
-    name: task-manager
+    name: registration
   jpa:
     hibernate:
       ddl-auto: none
@@ -18,19 +18,24 @@ spring:
     password: ${DATABASE_PASS}
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+    port: 5672
+
+helper:
+  stat:
+    close: true
+    start: true
+    
+resource:
+  secret: ${SECRET_KEY}
+  exp:
+    access: 60000000
+    refresh: 60000000
+    confirm: 60000000
 
 email:
   resend: 10
   callback: http://localhost:3000/email/confirm/token/
-
-resource:
-  secret: ${REGISTRATION_SECRET}
-  expiration:
-    access: 600000
-    refresh: 43200000
-    confirm: 3600000
-  types:
-    notification:
-      name: notification
-      baseUrl: http://localhost:9001/api/v1/notification/send
-      secretKey: ${NOTIFICATION_SECRET}

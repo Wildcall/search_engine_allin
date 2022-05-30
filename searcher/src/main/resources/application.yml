@@ -30,25 +30,7 @@ logging:
         web: INFO
 #       r2dbc: DEBUG
 
-resource:
-  secret: ${SEARCHER_SECRET}
-  types:
-    task_manager:
-      name: task_manager
-      baseUrl: http://localhost:8080/api/v1
-      secretKey: ${TASK_MANAGER_SECRET}
-      availablePaths:
-        callback: /callback
-    crawler:
-      name: crawler
-      baseUrl: http://localhost:8001/api/v1
-      secretKey: ${CRAWLER_SECRET}
-      availablePaths:
-        page: /page
-    indexer:
-      name: indexer
-      baseUrl: http://localhost:8101/api/v1
-      secretKey: ${INDEXER_SECRET}
-      availablePaths:
-        lemma: /lemma
-        index: /index
+rabbit:
+  queues:
+    task-queue: searcher-task-queue
+    log-queue: log-queue

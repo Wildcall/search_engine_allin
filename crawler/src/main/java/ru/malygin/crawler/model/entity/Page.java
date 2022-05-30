@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table("_page")
-public class Page implements BaseEntity, Serializable {
+public class Page implements BaseEntity {
 
     @Id
     private Long id;

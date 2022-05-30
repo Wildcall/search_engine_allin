@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import ru.malygin.searcher.model.entity.impl.Index;
+import ru.malygin.searcher.model.entity.Index;
 import ru.malygin.searcher.repository.IndexRepository;
 import ru.malygin.searcher.service.IndexService;
 

@@ -3,13 +3,8 @@ package ru.malygin.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import ru.malygin.config.ResourceConfig;
-import ru.malygin.config.WebClientConfiguration;
 import ru.malygin.model.Notification;
-import ru.malygin.model.ResourceType;
 import ru.malygin.model.entity.AppUser;
 import ru.malygin.security.JwtUtil;
 import ru.malygin.service.NotificationService;
@@ -25,30 +20,12 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final JwtUtil jwtUtil;
-    private final ResourceConfig resourceConfig;
-    private final WebClientConfiguration webClientConfiguration;
     @Value("${email.callback}")
     private String callbackAddress;
 
     @Override
     public void send(Notification notification) {
-        log.info("Send notification / {}", notification.getSendTo());
-        try {
-            webClientConfiguration
-                    .getWebClient()
-                    .post()
-                    .uri(resourceConfig
-                                 .getResource(ResourceType.NOTIFICATION)
-                                 .getBaseUrl())
-                    .body(BodyInserters.fromValue(notification))
-                    .header(HttpHeaders.AUTHORIZATION,
-                            "Bearer " + jwtUtil.generateResourceToken(ResourceType.NOTIFICATION))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception e) {
-            log.error("Error sending notification: {}", e.getMessage());
-        }
+        log.error("Send notification not impl");
     }
 
     @Override

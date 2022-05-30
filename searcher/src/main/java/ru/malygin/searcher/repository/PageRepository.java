@@ -5,7 +5,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.malygin.searcher.model.SearchResult;
-import ru.malygin.searcher.model.entity.impl.Page;
+import ru.malygin.searcher.model.entity.Page;
 
 import java.util.List;
 

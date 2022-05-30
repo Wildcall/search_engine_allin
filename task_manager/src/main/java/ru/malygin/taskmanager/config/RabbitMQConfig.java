@@ -1,26 +1,42 @@
 package ru.malygin.taskmanager.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.support.converter.DefaultClassMapper;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.malygin.taskmanager.model.entity.impl.Task;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
 @Configuration
 public class RabbitMQConfig {
 
-    private final String logQueueName = "log-queue";
-    private final String taskQueueName = "crawler-task-queue";
+    private final ObjectMapper mapper;
 
     @Bean
-    public Queue getLogQueue() {
-        return new Queue(logQueueName, false, false, false);
+    public Jackson2JsonMessageConverter jsonConverter() {
+        Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter(mapper);
+        jsonConverter.setClassMapper(classMapper());
+        return jsonConverter;
     }
 
     @Bean
-    public Queue getTaskQueue() {
-        return new Queue(taskQueueName, false, false, false);
+    public DefaultClassMapper classMapper() {
+        DefaultClassMapper classMapper = new DefaultClassMapper();
+        Map<String, Class<?>> idClassMapping = new HashMap<>();
+        idClassMapping.put("Task", Task.class);
+        classMapper.setIdClassMapping(idClassMapping);
+        return classMapper;
+    }
+
+    @Bean
+    public void configureObjectMapper() {
+        mapper.findAndRegisterModules();
     }
 }

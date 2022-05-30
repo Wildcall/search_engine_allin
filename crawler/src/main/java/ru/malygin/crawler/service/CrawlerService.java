@@ -1,10 +1,11 @@
 package ru.malygin.crawler.service;
 
+import org.springframework.context.event.EventListener;
 import ru.malygin.crawler.model.Task;
-import ru.malygin.crawler.model.TaskAction;
+import ru.malygin.helper.model.TaskReceiveEvent;
 
 public interface CrawlerService {
 
-    void process(Task task,
-                 TaskAction action);
+    @EventListener(TaskReceiveEvent.class)
+    void process(TaskReceiveEvent<Task> t);
 }

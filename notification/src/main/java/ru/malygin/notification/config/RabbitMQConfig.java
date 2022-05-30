@@ -1,4 +1,4 @@
-package ru.malygin.crawler.config;
+package ru.malygin.notification.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.crawler.model.Task;
+import ru.malygin.notification.model.Notification;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class RabbitMQConfig {
     public DefaultClassMapper classMapper() {
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
-        idClassMapping.put("Task", Task.class);
+        idClassMapping.put("Notification", Notification.class);
         classMapper.setIdClassMapping(idClassMapping);
         return classMapper;
     }

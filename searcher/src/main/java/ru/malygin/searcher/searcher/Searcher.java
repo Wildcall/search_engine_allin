@@ -3,12 +3,10 @@ package ru.malygin.searcher.searcher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
-import ru.malygin.searcher.model.ResourceCallback;
 import ru.malygin.searcher.model.Task;
-import ru.malygin.searcher.model.entity.impl.Statistic;
+import ru.malygin.searcher.model.entity.Statistic;
 import ru.malygin.searcher.service.IndexService;
 import ru.malygin.searcher.service.LemmaService;
 import ru.malygin.searcher.service.PageService;
@@ -30,7 +28,6 @@ public class Searcher implements Runnable {
     private final PageService pageService;
     private final LemmaService lemmaService;
     private final IndexService indexService;
-    private final ApplicationEventPublisher publisher;
     // init
     private final AtomicInteger stateCode = new AtomicInteger(0);
 
@@ -86,7 +83,6 @@ public class Searcher implements Runnable {
         statistic.setStartTime(LocalDateTime.now());
 
         stateCode.set(1);
-        publishCallbackEvent();
 
         fetcher
                 .fetchPages(siteId, appUserId)
@@ -142,7 +138,6 @@ public class Searcher implements Runnable {
             timeOut100ms();
             // ERROR
             if (stateCode.get() == 5) {
-                publishCallbackEvent();
                 break;
             }
             // INTERRUPT
@@ -166,7 +161,6 @@ public class Searcher implements Runnable {
         setActualStatistics();
         statisticService
                 .save(statistic)
-                .doOnSuccess(stat -> publishCallbackEvent())
                 .subscribe();
     }
 
@@ -175,19 +169,6 @@ public class Searcher implements Runnable {
         statistic.setSavedPages(savedPages.get());
         statistic.setSavedLemmas(savedLemmas.get());
         statistic.setSavedIndexes(savedIndex.get());
-    }
-
-    private void publishCallbackEvent() {
-        //  @formatter:off
-        ResourceCallback resourceCallback =
-                new ResourceCallback(task.getId(),
-                                     stateCode.get(),
-                                     statistic.getStartTime(),
-                                     statistic.getEndTime(),
-                                     statistic.getId());
-        publisher
-                .publishEvent(resourceCallback);
-        //  @formatter:on
     }
 
     @Component
@@ -199,10 +180,9 @@ public class Searcher implements Runnable {
         private final PageService pageService;
         private final LemmaService lemmaService;
         private final IndexService indexService;
-        private final ApplicationEventPublisher publisher;
 
         public Searcher build() {
-            return new Searcher(fetcher, statisticService, pageService, lemmaService, indexService, publisher);
+            return new Searcher(fetcher, statisticService, pageService, lemmaService, indexService);
         }
     }
 }

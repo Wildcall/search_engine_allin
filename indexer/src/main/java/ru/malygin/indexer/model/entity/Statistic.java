@@ -1,13 +1,10 @@
-package ru.malygin.indexer.model.entity.impl;
+package ru.malygin.indexer.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-import ru.malygin.indexer.model.dto.BaseDto;
-import ru.malygin.indexer.model.dto.impl.StatisticDto;
-import ru.malygin.indexer.model.entity.BaseEntity;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table("_stat")
 public class Statistic implements BaseEntity {
+
     @Id
     private Long id;
     private Long siteId;
@@ -42,20 +40,6 @@ public class Statistic implements BaseEntity {
                                              this.createdIndexes);
         }
         return crawlerStatistic;
-        //  @formatter:on
-    }
-
-    @Override
-    public BaseDto toBaseDto() {
-        //  @formatter:off
-        return new StatisticDto(id,
-                                siteId,
-                                appUserId,
-                                startTime,
-                                endTime,
-                                parsedPages,
-                                savedLemmas,
-                                createdIndexes);
         //  @formatter:on
     }
 

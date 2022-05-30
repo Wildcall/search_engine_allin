@@ -5,14 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
-import ru.malygin.indexer.model.ResourceCallback;
 import ru.malygin.indexer.model.Task;
-import ru.malygin.indexer.model.entity.impl.Statistic;
+import ru.malygin.indexer.model.entity.Statistic;
 import ru.malygin.indexer.service.StatisticService;
-import ru.malygin.indexer.sse.PublisherFactory;
-import ru.malygin.indexer.sse.event.IndexerEvent;
-import ru.malygin.indexer.sse.payload.IndexerEventPayload;
-import ru.malygin.indexer.sse.publisher.IndexerEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -26,22 +21,18 @@ public final class Indexer implements Runnable {
 
     // init in builder
     private final StatisticService statisticService;
-    private final PublisherFactory publisherFactory;
     private final PageParser.Builder builder;
     private final PageFetcher pageFetcher;
     // init
     private final AtomicInteger stateCode = new AtomicInteger(0);
     private final AtomicInteger parsedPages = new AtomicInteger(0);
     private final AtomicInteger completeRails = new AtomicInteger(0);
-    private final AtomicInteger indexerEventId = new AtomicInteger(0);
     // components
     private PageParser pageParser;
-    private IndexerEventPublisher indexerEventPublisher;
     // init in start
     private Task task;
     private Map<Task, Indexer> currentRunningTasks;
     private Statistic statistic;
-    private IndexerEventPayload indexerEventPayload;
     private String sitePath;
     private Long siteId;
     private Long appUserId;
@@ -65,7 +56,6 @@ public final class Indexer implements Runnable {
         this.sitePath = task.getPath();
         this.currentRunningTasks = currentRunningTasks;
 
-        this.indexerEventPublisher = publisherFactory.createIndexerEventPublisher(siteId, appUserId);
 
         this.pageParser = builder
                 .siteId(siteId)
@@ -76,13 +66,6 @@ public final class Indexer implements Runnable {
         this.statistic = new Statistic();
         this.statistic.setSiteId(siteId);
         this.statistic.setAppUserId(appUserId);
-
-        this.indexerEventPayload = new IndexerEventPayload(task.getId(),
-                                                           siteId,
-                                                           appUserId,
-                                                           stateCode.get(),
-                                                           LocalDateTime.now(),
-                                                           statistic);
 
         Thread thread = new Thread(this);
         thread.setName("Indexer-" + sitePath + "-" + appUserId);
@@ -98,12 +81,9 @@ public final class Indexer implements Runnable {
     public void run() {
         statistic.setStartTime(LocalDateTime.now());
 
-        publishEvent();
-
         timerCounter = System.currentTimeMillis();
 
         stateCode.set(1);
-        publishCallbackEvent();
 
         pageFetcher
                 .fetch(siteId, appUserId)
@@ -162,19 +142,11 @@ public final class Indexer implements Runnable {
         setActualStatistics();
         statisticService
                 .save(statistic)
-                .doOnSuccess(sink -> {
-                    indexerEventPayload.setStatusCode(stateCode.get());
-                    publishEvent();
-                    publishCallbackEvent();
-                    publisherFactory.deleteIndexerEventPublisher(indexerEventPublisher);
-                })
                 .subscribe();
     }
 
     private void publishCurrentStat() {
-        indexerEventPayload.setStatusCode(stateCode.get());
         setActualStatistics();
-        publishEvent();
         timerCounter = System.currentTimeMillis();
     }
 
@@ -189,36 +161,16 @@ public final class Indexer implements Runnable {
                                             .get());
     }
 
-    private void publishEvent() {
-        IndexerEvent event = (new IndexerEvent(indexerEventId.incrementAndGet(), indexerEventPayload.clone()));
-        indexerEventPublisher.publish(event);
-    }
-
-    private void publishCallbackEvent() {
-        //  @formatter:off
-        ResourceCallback resourceCallback =
-                new ResourceCallback(task.getId(),
-                                     stateCode.get(),
-                                     statistic.getStartTime(),
-                                     statistic.getEndTime(),
-                                     statistic.getId());
-        publisherFactory
-                .getPublisher()
-                .publishEvent(resourceCallback);
-        //  @formatter:on
-    }
-
     @Component
     @RequiredArgsConstructor
     public static final class Builder {
 
         private final StatisticService statisticService;
-        private final PublisherFactory publisherFactory;
         private final PageParser.Builder builder;
         private final PageFetcher pageFetcher;
 
         public Indexer build() {
-            return new Indexer(statisticService, publisherFactory, builder, pageFetcher);
+            return new Indexer(statisticService, builder, pageFetcher);
         }
     }
 }

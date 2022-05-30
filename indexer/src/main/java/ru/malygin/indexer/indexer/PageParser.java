@@ -10,8 +10,8 @@ import ru.malygin.indexer.indexer.util.AlphabetType;
 import ru.malygin.indexer.indexer.util.Lemmantisator;
 import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
-import ru.malygin.indexer.model.entity.impl.Index;
-import ru.malygin.indexer.model.entity.impl.Lemma;
+import ru.malygin.indexer.model.entity.Index;
+import ru.malygin.indexer.model.entity.Lemma;
 import ru.malygin.indexer.service.IndexService;
 import ru.malygin.indexer.service.LemmaService;
 

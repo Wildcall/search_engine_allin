@@ -16,6 +16,17 @@ public class Listener {
                     durable = "false",
                     autoDelete = "false"))
     public void receive(Message message) {
-        log.info(new String(message.getBody()));
+        String type = message
+                .getMessageProperties()
+                .getHeader("type");
+        if ("error".equals(type)) {
+            log.error(new String(message.getBody()));
+            return;
+        }
+        if ("info".equals(type)) {
+            log.info(new String(message.getBody()));
+            return;
+        }
+        log.debug(new String(message.getBody()));
     }
 }

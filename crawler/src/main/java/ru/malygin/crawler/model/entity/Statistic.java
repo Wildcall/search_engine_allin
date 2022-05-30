@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table("_stat")
 public class Statistic implements BaseEntity, Cloneable {
+
     @Id
     private Long id;
     private Long siteId;
