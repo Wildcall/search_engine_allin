@@ -3,19 +3,25 @@ package ru.malygin.helper.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.connection.SimplePropertyValueConnectionNameStrategy;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import ru.malygin.helper.MsgQueueDeclareFactory;
+import ru.malygin.helper.MsgReceiverFactory;
 import ru.malygin.helper.service.*;
 
 import java.util.HashMap;
@@ -27,130 +33,146 @@ import java.util.Map;
 @ConditionalOnClass(LogSender.class)
 public class MsgAutoConfiguration {
 
-    @RequiredArgsConstructor
-    @Configuration(proxyBeanMethods = false)
-    protected static class RabbitConfiguration {
-        private final ObjectMapper mapper;
-
-        @Bean
-        @ConditionalOnMissingBean
-        public RabbitTemplate rabbitTemplate(Jackson2JsonMessageConverter converter) {
-            RabbitTemplate rabbitTemplate = new RabbitTemplate();
-            rabbitTemplate.setMessageConverter(converter);
-            return rabbitTemplate;
-        }
-
-        @Bean
-        @ConditionalOnMissingBean
-        public Jackson2JsonMessageConverter jsonConverter(DefaultClassMapper classMapper) {
-            mapper.findAndRegisterModules();
-            Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter(mapper);
-            jsonConverter.setClassMapper(classMapper);
-            return jsonConverter;
-        }
-
-        @Bean
-        @ConditionalOnMissingBean
-        public DefaultClassMapper classMapper(Map<String, Class<?>> idClassMap) {
-            DefaultClassMapper classMapper = new DefaultClassMapper();
-            classMapper.setIdClassMapping(idClassMap);
-            return classMapper;
-        }
-
-        @Bean
-        @ConditionalOnMissingBean
-        public Map<String, Class<?>> idClassMap() {
-            return new HashMap<>();
-        }
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        return mapper;
     }
 
-    @RequiredArgsConstructor
-    @Configuration(proxyBeanMethods = false)
-    protected static class QueueConfiguration {
+    @Bean
+    public boolean customizeRabbitTemplate(RabbitTemplate rabbitTemplate,
+                                           Jackson2JsonMessageConverter converter) {
+        log.info("[*] Customize RabbitTemplate in starter");
+        rabbitTemplate.setMessageConverter(converter);
+        return false;
+    }
 
-        private final SearchEngineProperties properties;
+    @Bean
+    public SimplePropertyValueConnectionNameStrategy simplePropertyValueConnectionNameStrategy() {
+        log.info("[*] Change connection name in starter");
+        return new SimplePropertyValueConnectionNameStrategy("spring.application.name");
+    }
 
-        @Bean(name = "logQueue")
-        @ConditionalOnMissingBean
-        public Queue logQueue() {
-            Queue queue = new Queue(properties
-                                            .getMsg()
-                                            .getQueues()
-                                            .getLog(), false, false, false);
-            log.info("Initialize queue: {}", queue);
-            return queue;
-        }
+    @Bean
+    @Primary
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        log.info("[*] Create RabbitAdmin in starter");
+        return new RabbitAdmin(connectionFactory);
+    }
 
-        @Bean(name = "notificationQueue")
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg.queues", name = "notification")
-        @ConditionalOnMissingBean
-        public Queue notificationQueue() {
-            Queue queue = new Queue(properties
-                                            .getMsg()
-                                            .getQueues()
-                                            .getNotification(), false, false, false);
-            log.info("Initialize queue: {}", queue);
-            return queue;
-        }
+    @Bean
+    @Primary
+    public RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry() {
+        log.info("[*] Create RabbitListenerEndpointRegistry in starter");
+        return new RabbitListenerEndpointRegistry();
+    }
 
-        @Bean(name = "taskQueue")
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg.queues", name = "task")
-        @ConditionalOnMissingBean
-        public Queue taskQueue() {
-            Queue queue = new Queue(properties
-                                            .getMsg()
-                                            .getQueues()
-                                            .getTask(), false, false, false);
-            log.info("Initialize queue: {}", queue);
-            return queue;
-        }
+    @Bean
+    @ConditionalOnMissingBean
+    public Jackson2JsonMessageConverter jsonConverter(DefaultClassMapper classMapper,
+                                                      ObjectMapper mapper) {
+        log.info("[*] Create Jackson2JsonMessageConverter in starter");
+        Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter(mapper);
+        jsonConverter.setClassMapper(classMapper);
+        return jsonConverter;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DefaultClassMapper classMapper(Map<String, Class<?>> idClassMap) {
+        log.info("[*] Create DefaultClassMapper in starter");
+        DefaultClassMapper classMapper = new DefaultClassMapper();
+        classMapper.setIdClassMapping(idClassMap);
+        return classMapper;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Map<String, Class<?>> idClassMap() {
+        log.info("[*] Create DefaultIdClassMap in starter");
+        return new HashMap<>();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MsgQueueDeclareFactory msgQueueDeclareFactory(RabbitAdmin a) {
+        log.info("[*] Create msgQueueDeclareFactory in starter");
+        return new MsgQueueDeclareFactory(a);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MsgReceiverFactory msgReceiverFactory(SimpleRabbitListenerContainerFactory f,
+                                                 RabbitListenerEndpointRegistry r) {
+        log.info("[*] Create MsgReceiverFactory in starter");
+        return new MsgReceiverFactory(f, r);
     }
 
     @RequiredArgsConstructor
     @Configuration(proxyBeanMethods = false)
     protected static class SendersConfiguration {
 
+        private final MsgQueueDeclareFactory msgQueueDeclareFactory;
+        private final SearchEngineProperties properties;
+
         @Bean
-        @ConditionalOnMissingBean
-        public LogSender logSender(RabbitTemplate r,
-                                   SearchEngineProperties p) {
-            LogSender logSender = new LogSender(r, p
-                    .getMsg()
-                    .getQueues()
-                    .getLog());
-            log.info("Initialize sender: {}", logSender);
+        public LogSender logSender(RabbitTemplate r) {
+            Queue queue = msgQueueDeclareFactory.createQueue(properties
+                                                                     .getMsg()
+                                                                     .getLog());
+            LogSender logSender = new LogSender(r, queue);
+            log.info("[*] Create LogSender in starter");
             return logSender;
         }
 
         @Bean
-        @ConditionalOnBean(name = "notificationQueue")
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = "notification.sender", havingValue = "true")
         @ConditionalOnMissingBean
         public NotificationSender notificationSender(RabbitTemplate r,
-                                                     ObjectMapper m,
-                                                     SearchEngineProperties p) {
-            NotificationSender notificationSender = new NotificationSender(r, m, p
-                    .getMsg()
-                    .getQueues()
-                    .getNotification());
-            log.info("Initialize sender: {}", notificationSender);
+                                                     ObjectMapper m) {
+            Queue queue = msgQueueDeclareFactory.createQueue(properties
+                                                                     .getMsg()
+                                                                     .getNotification());
+            NotificationSender notificationSender = new NotificationSender(r, m, queue);
+            log.info("[*] Create NotificationSender in starter");
             return notificationSender;
         }
 
         @Bean
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = {"crawler-task.queue", "indexer-task.queue", "searcher-task.queue"})
         @ConditionalOnMissingBean
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = "start-stat", havingValue = "true")
+        public TaskSender taskSender(RabbitTemplate r,
+                                     ObjectMapper m) {
+            msgQueueDeclareFactory.createQueue(properties
+                                                       .getMsg()
+                                                       .getCrawlerTask());
+            msgQueueDeclareFactory.createQueue(properties
+                                                       .getMsg()
+                                                       .getIndexerTask());
+            msgQueueDeclareFactory.createQueue(properties
+                                                       .getMsg()
+                                                       .getSearcherTask());
+            TaskSender taskSender = new TaskSender(r, m);
+            log.info("[*] Create TaskSender in starter");
+            return taskSender;
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = "log.start-stat", havingValue = "true")
         public StartingStatSender startingStatSender(LogSender logSender) {
             StartingStatSender startingStatSender = new StartingStatSender(logSender);
-            log.info("Initialize sender: {}", startingStatSender);
+            log.info("[*] Create StartingStatSender in starter");
             return startingStatSender;
         }
 
         @Bean
         @ConditionalOnMissingBean
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = "close-stat", havingValue = "true")
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg", name = "log.close-stat", havingValue = "true")
         public ClosingStatSender closingStatSender(LogSender logSender) {
             ClosingStatSender closingStatSender = new ClosingStatSender(logSender);
-            log.info("Initialize sender: {}", closingStatSender);
+            log.info("[*] Create ClosingStatSender in starter");
             return closingStatSender;
         }
 
@@ -158,31 +180,33 @@ public class MsgAutoConfiguration {
 
     @RequiredArgsConstructor
     @Configuration(proxyBeanMethods = false)
-    protected static class TaskReceiverConfiguration<T> {
+    protected static class ReceiversConfiguration {
 
+        private final MsgQueueDeclareFactory msgQueueDeclareFactory;
         private final SearchEngineProperties properties;
+        private final MsgReceiverFactory msgReceiverFactory;
 
-        @Bean
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg.queues", name = "task")
-        @ConditionalOnMissingBean
-        public SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-                                                        TaskReceiver<T> receiver) {
-            SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-            container.setConnectionFactory(connectionFactory);
-            container.setQueueNames(properties
-                                            .getMsg()
-                                            .getQueues()
-                                            .getTask());
-            container.setMessageListener(receiver);
-            return container;
+        @Bean(name = "taskReceiver")
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg.task", name = "queue")
+        public <T> MessageListener taskReceiver(Jackson2JsonMessageConverter c,
+                                                ApplicationEventPublisher p) {
+            Queue queue = msgQueueDeclareFactory.createQueue(properties
+                                                                     .getMsg()
+                                                                     .getTask());
+            log.info("[*] Create TaskReceiver in starter");
+            TaskReceiver<T> receiver = new TaskReceiver<>(c, p);
+            return msgReceiverFactory.create(queue, receiver);
         }
 
-        @Bean
-        @ConditionalOnProperty(prefix = "spring.search-engine.msg.queues", name = "task")
-        @ConditionalOnMissingBean
-        public TaskReceiver<T> taskReceiver(Jackson2JsonMessageConverter c,
-                                            ApplicationEventPublisher p) {
-            return new TaskReceiver<>(c, p);
+        @Bean(name = "logReceiver")
+        @ConditionalOnProperty(prefix = "spring.search-engine.msg.log", name = "receiver", havingValue = "true")
+        public MessageListener logReceiver(ApplicationEventPublisher p) {
+            Queue queue = msgQueueDeclareFactory.createQueue(properties
+                                                                     .getMsg()
+                                                                     .getLog());
+            log.info("[*] Create LogReceiver in starter");
+            LogReceiver receiver = new LogReceiver(p);
+            return msgReceiverFactory.create(queue, receiver);
         }
     }
 }

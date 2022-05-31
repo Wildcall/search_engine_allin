@@ -3,10 +3,12 @@ package ru.malygin.indexer.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.malygin.helper.model.TaskAction;
+import ru.malygin.helper.model.TaskReceiveEvent;
 import ru.malygin.helper.service.LogSender;
+import ru.malygin.indexer.config.RabbitConfig;
 import ru.malygin.indexer.indexer.Indexer;
 import ru.malygin.indexer.model.Task;
-import ru.malygin.indexer.model.TaskAction;
 import ru.malygin.indexer.service.IndexService;
 import ru.malygin.indexer.service.IndexerService;
 import ru.malygin.indexer.service.LemmaService;
@@ -24,12 +26,25 @@ public class IndexerServiceImpl implements IndexerService {
     private final IndexService indexService;
     private final Indexer.Builder indexerBuilder;
     private final LogSender logSender;
+    private final RabbitConfig.Client client;
 
     @Override
-    public void process(Task task,
-                        TaskAction action) {
-        if (action.equals(TaskAction.START)) this.start(task);
-        if (action.equals(TaskAction.STOP)) this.stop(task);
+    public void process(TaskReceiveEvent<Task> event) {
+        Task task = event.getTask();
+        TaskAction action = event.getAction();
+
+        if (action.equals(TaskAction.START)) {
+            client.send(task.getAppUserId(), task.getSiteId(), task.getId());
+//            this.start(task);
+            return;
+        }
+        if (action.equals(TaskAction.STOP)) {
+//            this.stop(task);
+            return;
+        }
+        if (action.equals(TaskAction.UNKNOWN)) {
+            logSender.error("CRAWLER / Task action unknown: %s", action);
+        }
     }
 
     private void start(Task task) {
@@ -56,10 +71,7 @@ public class IndexerServiceImpl implements IndexerService {
                     indexer.start(task, currentRunningTasks);
                     currentRunningTasks.put(task, indexer);
                     logSender.info("INDEXER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
-                                   task.getId(),
-                                   task.getPath(),
-                                   task.getSiteId(),
-                                   task.getAppUserId());
+                                   task.getId(), task.getPath(), task.getSiteId(), task.getAppUserId());
                 })
                 .subscribe();
     }

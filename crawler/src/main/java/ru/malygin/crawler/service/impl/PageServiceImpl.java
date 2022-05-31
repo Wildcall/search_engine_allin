@@ -33,6 +33,13 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
+    public Mono<Long> getCountBySiteIdAndAppUserId(Long siteId,
+                                                      Long appUserId) {
+        log.info("GET PAGES COUNT / SiteId: {} / AppUserId: {}", siteId, appUserId);
+        return pageRepository.countPagesBySiteIdAndAppUserId(siteId, appUserId);
+    }
+
+    @Override
     public Mono<Void> deleteAllBySiteIdAndAppUserId(Long siteId,
                                                     Long appUserId) {
         log.info("DELETE PAGES / SiteId: {} / AppUserId: {}", siteId, appUserId);

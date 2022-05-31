@@ -23,12 +23,15 @@ spring:
     username: guest
     password: guest
     port: 5672
+  search-engine:
+    msg:
+      log:
+        close-stat: true
+        start-stat: true
+      notification:
+        queue: notification-queue
+        sender: true
 
-helper:
-  stat:
-    close: true
-    start: true
-    
 resource:
   secret: ${SECRET_KEY}
   exp:

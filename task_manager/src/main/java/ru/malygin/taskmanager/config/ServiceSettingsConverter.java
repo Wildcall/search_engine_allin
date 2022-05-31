@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.malygin.helper.service.LogSender;
 import ru.malygin.taskmanager.model.ResourceType;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
 
@@ -17,7 +16,6 @@ import javax.persistence.Converter;
 public class ServiceSettingsConverter implements AttributeConverter<ResourceSetting, String> {
 
     private final ObjectMapper objectMapper;
-    private final LogSender logSender;
 
     @Override
     public String convertToDatabaseColumn(ResourceSetting resourceSetting) {
@@ -25,7 +23,7 @@ public class ServiceSettingsConverter implements AttributeConverter<ResourceSett
         try {
             serviceSettingsJson = objectMapper.writeValueAsString(resourceSetting);
         } catch (final JsonProcessingException e) {
-            logSender.error("JSON writing error: %s", e);
+            log.error("JSON writing error: {}", e.getMessage());
         }
         return serviceSettingsJson;
     }
@@ -45,7 +43,7 @@ public class ServiceSettingsConverter implements AttributeConverter<ResourceSett
                     .map(ResourceSetting.classMap::get)
                     .orElseThrow());
         } catch (JsonProcessingException e) {
-            logSender.error("Error parse value from database: %s", e.getMessage());
+            log.error("Error parse value from database: {}", e.getMessage());
         }
         return null;
     }

@@ -26,6 +26,12 @@ spring:
     username: guest
     password: guest
     port: 5672
+  search-engine:
+    msg:
+      queues:
+        task: indexer-task-queue
+      close-stat: true
+      start-stat: true
 
 logging:
   level:
@@ -34,12 +40,3 @@ logging:
       springframework:
         web: INFO
 #       r2dbc: DEBUG
-
-helper:
-  queues:
-    task-queue: indexer-task-queue
-  stat:
-    start: true
-    close: true
-  receiver:
-    task: true

@@ -3,6 +3,7 @@ package ru.malygin.helper.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class LogSender {
 
     private final RabbitTemplate rabbitTemplate;
-    private final String queue;
+    private final Queue queue;
     @Value(value = "${spring.application.name}")
     private String appName;
 
@@ -46,6 +47,6 @@ public class LogSender {
             mp.setHeader("type", "error");
         }
         Message message = new Message(msg, mp);
-        rabbitTemplate.send(queue, message);
+        rabbitTemplate.send(queue.getName(), message);
     }
 }

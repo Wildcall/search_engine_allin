@@ -23,6 +23,17 @@ spring:
     username: guest
     password: guest
     port: 5672
+  search-engine:
+    msg:
+      log:
+        start-stat: true
+        close-stat: true
+      crawler-task:
+        queue: crawler-task-queue
+      indexer-task:
+        queue: indexer-task-queue
+      searcher-task:
+        queue: searcher-task-queue
 
 logging:
   level:
@@ -31,17 +42,5 @@ logging:
       springframework:
         web: INFO
 
-
-rabbit:
-  queues:
-    crawler-task-queue: crawler-task-queue
-    indexer-task-queue: indexer-task-queue
-    searcher-task-queue: searcher-task-queue
-
 resource:
   secret: ${SECRET_KEY}
-
-helper:
-  stat:
-    start: true
-    close: true

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import ru.malygin.helper.model.Notification;
@@ -17,7 +18,7 @@ public class NotificationSender {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper mapper;
-    private final String queue;
+    private final Queue queue;
     @Value(value = "${spring.application.name}")
     private String appName;
 
@@ -32,7 +33,8 @@ public class NotificationSender {
                     .setHeader("__TypeId__", "Notification")
                     .setHeader("app", appName)
                     .build();
-            rabbitTemplate.send(queue, message);
+
+            rabbitTemplate.send(queue.getName(), message);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }

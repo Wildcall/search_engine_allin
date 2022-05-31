@@ -12,7 +12,6 @@ import ru.malygin.taskmanager.model.entity.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
-import ru.malygin.taskmanager.rabbit.TaskSender;
 import ru.malygin.taskmanager.service.AppUserService;
 import ru.malygin.taskmanager.service.ResourceService;
 import ru.malygin.taskmanager.service.TaskService;
@@ -28,7 +27,6 @@ public class ResourceFacadeImpl implements ResourceFacade {
     private final AppUserService appUserService;
     private final TaskService taskService;
     private final ResourceService resourceService;
-    private final TaskSender taskSender;
 
     @Override
     public Map<String, Long> start(Authentication authentication,

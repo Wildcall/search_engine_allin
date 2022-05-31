@@ -6,7 +6,7 @@ spring:
     username: guest
     password: guest
     port: 5672
-
-rabbit:
-  queues:
-    log-queue: log-queue
+  search-engine:
+    msg:
+      log:
+        receiver: true

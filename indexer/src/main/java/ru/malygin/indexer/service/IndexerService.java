@@ -1,9 +1,11 @@
 package ru.malygin.indexer.service;
 
+import org.springframework.context.event.EventListener;
+import ru.malygin.helper.model.TaskReceiveEvent;
 import ru.malygin.indexer.model.Task;
-import ru.malygin.indexer.model.TaskAction;
 
 public interface IndexerService {
-    void process(Task task,
-                 TaskAction action);
+
+    @EventListener(TaskReceiveEvent.class)
+    void process(TaskReceiveEvent<Task> event);
 }
