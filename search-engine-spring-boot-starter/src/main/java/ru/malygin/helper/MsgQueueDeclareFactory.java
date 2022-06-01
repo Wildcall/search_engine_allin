@@ -23,6 +23,11 @@ public class MsgQueueDeclareFactory {
     public Queue createQueue(BaseMsg msg) {
         String queueName = msg.getQueue();
         String exchangeName = msg.getExchange();
+        return createQueue(queueName, exchangeName);
+    }
+
+    public Queue createQueue(String queueName,
+                             String exchangeName) {
         Queue queue = declareQueue(queueName);
         Exchange exchange = declareExchange(exchangeName);
 

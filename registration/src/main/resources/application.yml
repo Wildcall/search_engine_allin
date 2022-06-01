@@ -25,11 +25,7 @@ spring:
     port: 5672
   search-engine:
     msg:
-      log:
-        close-stat: true
-        start-stat: true
       notification:
-        queue: notification-queue
         sender: true
 
 resource:

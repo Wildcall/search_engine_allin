@@ -1,4 +1,4 @@
-package ru.malygin.helper.service;
+package ru.malygin.helper.service.senders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ public class TaskSender {
                 Message message = MessageBuilder
                         .withBody(body)
                         .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                        .setHeader("__TypeId__", "Task")
+                        .setHeader("__TypeId__", "Hashtable")
                         .setHeader("action", action)
                         .setHeader("app", appName)
                         .build();

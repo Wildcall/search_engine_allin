@@ -2,8 +2,10 @@ package ru.malygin.helper.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 @Data
+@Component("seProp")
 @ConfigurationProperties("spring.search-engine")
 public class SearchEngineProperties {
 
@@ -26,16 +28,13 @@ public class SearchEngineProperties {
 
         @Data
         public static class Log implements BaseMsg {
-            private Boolean receiver = false;
-            private Boolean startStat = false;
-            private Boolean closeStat = false;
+            private Boolean sender = true;
             private String queue = "log-queue";
             private String exchange;
         }
 
         @Data
         public static class Notification implements BaseMsg {
-            private Boolean receiver = false;
             private Boolean sender = false;
             private String queue = "notification-queue";
             private String exchange;
@@ -43,7 +42,7 @@ public class SearchEngineProperties {
 
         @Data
         public static class Task implements BaseMsg {
-            private String queue;
+            private String queue = "default-task-queue";
             private String exchange;
         }
 

@@ -2,7 +2,9 @@ package ru.malygin.indexer.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.*;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerEndpoint;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -11,6 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.malygin.helper.MsgQueueDeclareFactory;
 import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
 
@@ -21,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Configuration
-public class RabbitConfig {
+public class AppConfig {
 
-    protected static final String RPC_EXCHANGE = "rpc-exchange";
-    protected static final String MSG_QUEUE = "msg-queue";
+    private final static String PAGE_REQUEST_QUEUE = "page-request-queue";
+    private final static String RPC_EXCHANGE = "rpc-exchange";
 
     @Bean
     protected Map<String, Class<?>> idClassMap() {
@@ -35,21 +38,8 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue msgQueue() {
-        return new Queue(MSG_QUEUE, false, false, false);
-    }
-
-    @Bean
-    public DirectExchange exchange() {
-        return new DirectExchange(RPC_EXCHANGE);
-    }
-
-    @Bean
-    public Binding msgBinding() {
-        return BindingBuilder
-                .bind(msgQueue())
-                .to(exchange())
-                .with(MSG_QUEUE);
+    public Queue declareRPC(MsgQueueDeclareFactory queueFactory) {
+        return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 
     @Bean
@@ -60,22 +50,15 @@ public class RabbitConfig {
     }
 
     @Bean
-    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
-        return new RabbitAdmin(connectionFactory);
-    }
-
-    @Bean
     public Client client(RabbitTemplate r,
-                         RabbitAdmin ra,
                          TempListenerContainerFactory f) {
-        return new Client(r, ra, f);
+        return new Client(r, f);
     }
 
     @RequiredArgsConstructor
     public static class Client {
 
         private final RabbitTemplate rabbitTemplate;
-        private final RabbitAdmin rabbitAdmin;
         private final TempListenerContainerFactory factory;
         private final Random random = new Random();
         private final Map<Long, String> callbackAddress = new ConcurrentHashMap<>();
@@ -86,7 +69,7 @@ public class RabbitConfig {
             log.info("Request pages from crawler");
             String pageQueue = "page-queue" + taskId + "==" + random.nextLong();
             Long pagesCount = (Long) rabbitTemplate.convertSendAndReceive(RPC_EXCHANGE,
-                                                                          MSG_QUEUE,
+                                                                          PAGE_REQUEST_QUEUE,
                                                                           Map.of("appUserId", appUserId.toString(),
                                                                                  "siteId", siteId.toString(),
                                                                                  "pageQueue", pageQueue));
@@ -96,7 +79,7 @@ public class RabbitConfig {
                 return false;
             }
             log.info("Got {}", pagesCount);
-            factory.create(pageQueue);
+            //factory.create(pageQueue);
             return true;
         }
     }

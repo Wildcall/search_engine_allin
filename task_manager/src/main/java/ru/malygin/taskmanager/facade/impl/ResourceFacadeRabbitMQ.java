@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.config.SearchEngineProperties;
-import ru.malygin.helper.service.TaskSender;
+import ru.malygin.helper.service.senders.TaskSender;
 import ru.malygin.taskmanager.facade.ResourceFacade;
 import ru.malygin.taskmanager.model.ResourceType;
 import ru.malygin.taskmanager.model.TaskAction;
@@ -26,7 +26,7 @@ public class ResourceFacadeRabbitMQ implements ResourceFacade {
     private final AppUserService appUserService;
     private final TaskService taskService;
     private final TaskSender taskSender;
-    private final SearchEngineProperties properties;
+    private final SearchEngineProperties seProp;
 
     @Override
     public Map<String, Long> start(Authentication authentication,
@@ -51,11 +51,11 @@ public class ResourceFacadeRabbitMQ implements ResourceFacade {
 
     private String getQueue(Task task) {
         //  @formatter:off
-        String queue = properties.getMsg().getCrawlerTask().getQueue();
+        String queue = seProp.getMsg().getCrawlerTask().getQueue();
         if (task.getType().equals(ResourceType.INDEXER))
-            queue = properties.getMsg().getIndexerTask().getQueue();
+            queue = seProp.getMsg().getIndexerTask().getQueue();
         if (task.getType().equals(ResourceType.SEARCHER))
-            queue = properties.getMsg().getSearcherTask().getQueue();
+            queue = seProp.getMsg().getSearcherTask().getQueue();
         return queue;
         //  @formatter:on
     }

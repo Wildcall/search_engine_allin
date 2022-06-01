@@ -9,4 +9,6 @@ spring:
   search-engine:
     msg:
       log:
+        sender: false
+      task:
         receiver: true

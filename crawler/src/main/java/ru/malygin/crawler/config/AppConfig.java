@@ -2,25 +2,29 @@ package ru.malygin.crawler.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.service.PageService;
+import ru.malygin.helper.MsgQueueDeclareFactory;
+import ru.malygin.helper.service.TaskReceiver;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @Configuration
 public class AppConfig {
+
+    private final static String PAGE_REQUEST_QUEUE = "page-request-queue";
+    private final static String RPC_EXCHANGE = "rpc-exchange";
 
     @Bean
     protected Map<String, Class<?>> idClassMap() {
@@ -32,28 +36,16 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue msgQueue() {
-        return new Queue("msg-queue", false, false, false);
-    }
-
-    @Bean
-    public DirectExchange exchange() {
-        return new DirectExchange("rpc-exchange");
-    }
-
-    @Bean
-    public Binding msgBinding() {
-        return BindingBuilder
-                .bind(msgQueue())
-                .to(exchange())
-                .with("msg-queue");
+    public Queue declareRPC(MsgQueueDeclareFactory queueFactory) {
+        return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 
     @Bean
     public Server server(PageService ps,
                          RabbitTemplate r,
-                         RabbitAdmin ra) {
-        return new Server(ps, r, ra);
+                         RabbitAdmin ra,
+                         Queue declareRPC) {
+        return new Server(ps, r, ra, declareRPC);
     }
 
     @RequiredArgsConstructor
@@ -62,8 +54,9 @@ public class AppConfig {
         private final PageService pageService;
         private final RabbitTemplate rabbitTemplate;
         private final RabbitAdmin rabbitAdmin;
+        private final Queue declareRPC;
 
-        @RabbitListener(queues = "msg-queue")
+        @RabbitListener(queues = "#{declareRPC.getName()}")
         public Long receivePage(Map<String, String> map) {
             try {
                 Long siteId = Long.parseLong(map.get("siteId"));
@@ -71,7 +64,7 @@ public class AppConfig {
                 String pageQueue = map.get("pageQueue");
                 return pageService
                         .getCountBySiteIdAndAppUserId(siteId, appUserId)
-                        .doOnSuccess(sink -> sendPages(pageQueue, siteId, appUserId))
+                        //.doOnSuccess(sink -> sendPages(pageQueue, siteId, appUserId))
                         .block();
             } catch (NumberFormatException e) {
                 log.info(e.getMessage());

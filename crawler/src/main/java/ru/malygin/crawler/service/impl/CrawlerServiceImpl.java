@@ -9,7 +9,7 @@ import ru.malygin.crawler.service.CrawlerService;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
-import ru.malygin.helper.service.LogSender;
+import ru.malygin.helper.service.senders.LogSender;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -27,20 +27,16 @@ public class CrawlerServiceImpl implements CrawlerService {
     private final LogSender logSender;
 
     @Override
-    public void process(TaskReceiveEvent<Task> event) {
-        Task task = event.getTask();
+    public void process(TaskReceiveEvent event) {
         TaskAction action = event.getAction();
-
+        Task task = (Task) event.getTask();
+        log.info("Received: {}", task);
         if (action.equals(TaskAction.START)) {
             this.start(task);
             return;
         }
         if (action.equals(TaskAction.STOP)) {
             this.stop(task);
-            return;
-        }
-        if (action.equals(TaskAction.UNKNOWN)) {
-            logSender.error("CRAWLER / Task action unknown: %s", action);
         }
     }
 

@@ -1,4 +1,4 @@
-package ru.malygin.helper.service;
+package ru.malygin.helper.service.senders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,8 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import ru.malygin.helper.model.Notification;
+
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class NotificationSender {
             Message message = MessageBuilder
                     .withBody(body)
                     .setContentType(MessageProperties.CONTENT_TYPE_JSON)
+                    .setTimestamp(new Date(System.currentTimeMillis()))
                     .setHeader("__TypeId__", "Notification")
                     .setHeader("app", appName)
                     .build();

@@ -28,10 +28,11 @@ spring:
     port: 5672
   search-engine:
     msg:
-      queues:
-        task: crawler-task-queue
-      close-stat: true
-      start-stat: true
+      log:
+        close-stat: true
+        start-stat: true
+      task:
+        queue: crawler-task-queue
 
 logging:
   level:

@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
-import ru.malygin.helper.service.LogSender;
-import ru.malygin.indexer.config.RabbitConfig;
+import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.indexer.config.AppConfig;
 import ru.malygin.indexer.indexer.Indexer;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.service.IndexService;
@@ -26,11 +26,11 @@ public class IndexerServiceImpl implements IndexerService {
     private final IndexService indexService;
     private final Indexer.Builder indexerBuilder;
     private final LogSender logSender;
-    private final RabbitConfig.Client client;
+    private final AppConfig.Client client;
 
     @Override
-    public void process(TaskReceiveEvent<Task> event) {
-        Task task = event.getTask();
+    public void process(TaskReceiveEvent event) {
+        Task task = (Task) event.getTask();
         TaskAction action = event.getAction();
 
         if (action.equals(TaskAction.START)) {

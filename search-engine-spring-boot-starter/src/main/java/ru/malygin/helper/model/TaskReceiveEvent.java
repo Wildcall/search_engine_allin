@@ -1,24 +1,18 @@
 package ru.malygin.helper.model;
 
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
-public class TaskReceiveEvent<T> extends ApplicationEvent {
+@Getter
+public class TaskReceiveEvent extends ApplicationEvent {
 
-    private final T t;
+    private final Object task;
     private final TaskAction action;
 
-    public TaskReceiveEvent(T t,
+    public TaskReceiveEvent(Object task,
                             TaskAction a) {
-        super(t);
-        this.t = t;
+        super(task);
+        this.task = task;
         this.action = a;
-    }
-
-    public T getTask() {
-        return t;
-    }
-
-    public TaskAction getAction() {
-        return action;
     }
 }

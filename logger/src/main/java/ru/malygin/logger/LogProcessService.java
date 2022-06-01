@@ -5,6 +5,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.LogReceiveEvent;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 public class LogProcessService {
@@ -12,15 +14,15 @@ public class LogProcessService {
     @EventListener(LogReceiveEvent.class)
     public void processLog(LogReceiveEvent event) {
         String type = event.getType();
-        String message = event.getMessage();
+        Map<String, String> eventMap = event.getMap();
         if ("error".equals(type)) {
-            log.error(message);
+            log.error(eventMap.toString());
             return;
         }
         if ("info".equals(type)) {
-            log.info(message);
+            log.info(eventMap.toString());
             return;
         }
-        log.debug(message);
+        log.debug(eventMap.toString());
     }
 }
