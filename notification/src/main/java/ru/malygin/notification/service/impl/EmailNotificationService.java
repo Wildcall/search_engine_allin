@@ -7,22 +7,22 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import ru.malygin.logsenderspringbootstarter.service.LogSender;
+import ru.malygin.helper.model.Notification;
+import ru.malygin.helper.service.senders.LogSender;
 import ru.malygin.notification.config.TemplateConfig;
-import ru.malygin.notification.model.Notification;
-import ru.malygin.notification.service.NotificationSender;
+import ru.malygin.notification.service.NotificationService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Map;
 
 import static ru.malygin.notification.config.TemplateConfig.TemplateParam;
-import static ru.malygin.notification.service.NotificationSenderType.EMAIL;
+import static ru.malygin.notification.service.NotificationServiceType.EMAIL;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EmailNotificationSender implements NotificationSender {
+public class EmailNotificationService implements NotificationService {
 
     private final TemplateConfig templateConfig;
     private final TemplateEngine htmlTemplateEngine;

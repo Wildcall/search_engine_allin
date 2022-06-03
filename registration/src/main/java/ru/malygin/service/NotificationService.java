@@ -1,12 +1,12 @@
 package ru.malygin.service;
 
-import ru.malygin.model.Notification;
+import ru.malygin.helper.model.Notification;
 import ru.malygin.model.entity.AppUser;
 
 public interface NotificationService {
     void send(Notification notification);
 
-    Notification createConfirmNotification(AppUser appUser);
+    void sendConfirmNotification(AppUser appUser);
 
-    Notification createSuccessNotification(AppUser appUser);
+    void sendSuccessNotification(AppUser appUser);
 }

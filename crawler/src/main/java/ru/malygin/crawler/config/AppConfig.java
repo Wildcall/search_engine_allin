@@ -6,14 +6,12 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.service.PageService;
-import ru.malygin.helper.MsgQueueDeclareFactory;
-import ru.malygin.helper.service.TaskReceiver;
+import ru.malygin.helper.QueueDeclareFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue declareRPC(MsgQueueDeclareFactory queueFactory) {
+    public Queue declareRPC(QueueDeclareFactory queueFactory) {
         return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 

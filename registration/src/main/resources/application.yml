@@ -24,17 +24,19 @@ spring:
     password: guest
     port: 5672
   search-engine:
-    msg:
+    registration:
+      secret: ${SECRET_KEY}
+      expiration:
+        access: 60000000
+        refresh: 60000000
+        confirm: 60000000
+      email:
+        resendTimeoutInMin: 10
+        callbackAddress: http://localhost:3000/email/confirm/token/
+    common:
+      metrics:
+        sender: true
+      log:
+        sender: true
       notification:
         sender: true
-
-resource:
-  secret: ${SECRET_KEY}
-  exp:
-    access: 60000000
-    refresh: 60000000
-    confirm: 60000000
-
-email:
-  resend: 10
-  callback: http://localhost:3000/email/confirm/token/

@@ -36,7 +36,6 @@ public class TaskSender {
                         .setHeader("action", action)
                         .setHeader("app", appName)
                         .build();
-
                 rabbitTemplate.send(queue, message);
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());

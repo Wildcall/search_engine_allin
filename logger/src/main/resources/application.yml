@@ -7,8 +7,8 @@ spring:
     password: guest
     port: 5672
   search-engine:
-    msg:
+    common:
       log:
-        sender: false
-      task:
+        receiver: true
+      metrics:
         receiver: true

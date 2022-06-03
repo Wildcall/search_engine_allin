@@ -3,16 +3,16 @@ package ru.malygin.notification.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.malygin.logsenderspringbootstarter.service.LogSender;
-import ru.malygin.notification.model.Notification;
-import ru.malygin.notification.service.NotificationSender;
+import ru.malygin.helper.model.Notification;
+import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.notification.service.NotificationService;
 
-import static ru.malygin.notification.service.NotificationSenderType.SMS;
+import static ru.malygin.notification.service.NotificationServiceType.SMS;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SmsNotificationSender implements NotificationSender {
+public class SmsNotificationService implements NotificationService {
 
     private final LogSender logSender;
 

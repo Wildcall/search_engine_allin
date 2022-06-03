@@ -9,7 +9,7 @@ import ru.malygin.crawler.service.CrawlerService;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.service.senders.impl.DefaultLogSender;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -24,7 +24,7 @@ public class CrawlerServiceImpl implements CrawlerService {
     private final Map<Task, Crawler> currentRunningTasks = new ConcurrentHashMap<>();
     private final PageService pageService;
     private final Crawler.Builder crawlerBuilder;
-    private final LogSender logSender;
+    private final DefaultLogSender defaultLogSender;
 
     @Override
     public void process(TaskReceiveEvent event) {
@@ -46,17 +46,17 @@ public class CrawlerServiceImpl implements CrawlerService {
 
         //  @formatter:off
         if (currentRunningTasks.get(task) != null) {
-            logSender.error("CRAWLER / Code: 6001");
+            defaultLogSender.error("CRAWLER / Code: 6001");
             return;
         }
 
         if (currentRunningTasks.keySet().stream().anyMatch(t -> t.getPath().equalsIgnoreCase(task.getPath()))) {
-            logSender.error("CRAWLER / Code: 6002");
+            defaultLogSender.error("CRAWLER / Code: 6002");
             return;
         }
 
         if (siteNotAvailable(task)) {
-            logSender.error("CRAWLER / Code: 6003");
+            defaultLogSender.error("CRAWLER / Code: 6003");
             return;
         }
         //  @formatter:on
@@ -67,11 +67,11 @@ public class CrawlerServiceImpl implements CrawlerService {
                     Crawler crawler = crawlerBuilder.build();
                     crawler.start(task, currentRunningTasks);
                     currentRunningTasks.put(task, crawler);
-                    logSender.info("CRAWLER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
-                                   task.getId(),
-                                   task.getPath(),
-                                   task.getSiteId(),
-                                   task.getAppUserId());
+                    defaultLogSender.info("CRAWLER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
+                                          task.getId(),
+                                          task.getPath(),
+                                          task.getSiteId(),
+                                          task.getAppUserId());
                 })
                 .subscribe();
     }
@@ -79,17 +79,17 @@ public class CrawlerServiceImpl implements CrawlerService {
     private void stop(Task task) {
         Crawler crawler = currentRunningTasks.get(task);
         if (crawler == null) {
-            logSender.error("CRAWLER / Code: 6004");
+            defaultLogSender.error("CRAWLER / Code: 6004");
             return;
         }
         crawler.stop();
         currentRunningTasks.remove(task);
-        logSender.info("CRAWLER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
-                       task.getPath(), task.getSiteId(), task.getAppUserId());
+        defaultLogSender.info("CRAWLER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
+                              task.getPath(), task.getSiteId(), task.getAppUserId());
     }
 
     private boolean siteNotAvailable(Task task) {
-        logSender.info("PING / Resource: %s", task.getPath());
+        defaultLogSender.info("PING / Resource: %s", task.getPath());
         try {
             URL url = new URL(task.getPath());
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -98,9 +98,9 @@ public class CrawlerServiceImpl implements CrawlerService {
                 return false;
             }
         } catch (Exception e) {
-            logSender.error("PING ERROR  / Resource: %s / Message: %s", task.getPath(), e.getMessage());
+            defaultLogSender.error("PING ERROR  / Resource: %s / Message: %s", task.getPath(), e.getMessage());
         }
-        logSender.error("PING ERROR  / Resource: %s", task.getPath());
+        defaultLogSender.error("PING ERROR  / Resource: %s", task.getPath());
         return true;
     }
 }

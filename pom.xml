@@ -16,7 +16,6 @@
         <module>searcher</module>
         <module>task_manager</module>
         <module>registration</module>
-        <module>notification</module>
     </modules>
 
     <properties>

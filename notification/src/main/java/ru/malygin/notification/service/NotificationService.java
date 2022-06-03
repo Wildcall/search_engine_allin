@@ -1,8 +1,8 @@
 package ru.malygin.notification.service;
 
-import ru.malygin.notification.model.Notification;
+import ru.malygin.helper.model.Notification;
 
-public interface NotificationSender {
+public interface NotificationService {
     void send(Notification notification);
 
     String getType();

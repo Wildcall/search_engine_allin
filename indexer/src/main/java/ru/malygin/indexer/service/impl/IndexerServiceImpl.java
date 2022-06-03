@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.service.senders.impl.DefaultLogSender;
 import ru.malygin.indexer.config.AppConfig;
 import ru.malygin.indexer.indexer.Indexer;
 import ru.malygin.indexer.model.Task;
@@ -25,7 +25,7 @@ public class IndexerServiceImpl implements IndexerService {
     private final LemmaService lemmaService;
     private final IndexService indexService;
     private final Indexer.Builder indexerBuilder;
-    private final LogSender logSender;
+    private final DefaultLogSender defaultLogSender;
     private final AppConfig.Client client;
 
     @Override
@@ -43,7 +43,7 @@ public class IndexerServiceImpl implements IndexerService {
             return;
         }
         if (action.equals(TaskAction.UNKNOWN)) {
-            logSender.error("CRAWLER / Task action unknown: %s", action);
+            defaultLogSender.error("CRAWLER / Task action unknown: %s", action);
         }
     }
 
@@ -53,12 +53,12 @@ public class IndexerServiceImpl implements IndexerService {
 
         //  @formatter:off
         if (currentRunningTasks.get(task) != null) {
-            logSender.error("INDEXER / Code: 5001");
+            defaultLogSender.error("INDEXER / Code: 5001");
             return;
         }
 
         if (currentRunningTasks.keySet().stream().anyMatch(t -> t.getPath().equalsIgnoreCase(task.getPath()))) {
-            logSender.error("INDEXER / Code: 6002");
+            defaultLogSender.error("INDEXER / Code: 6002");
             return;
         }
         //  @formatter:on
@@ -70,8 +70,8 @@ public class IndexerServiceImpl implements IndexerService {
                     Indexer indexer = indexerBuilder.build();
                     indexer.start(task, currentRunningTasks);
                     currentRunningTasks.put(task, indexer);
-                    logSender.info("INDEXER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
-                                   task.getId(), task.getPath(), task.getSiteId(), task.getAppUserId());
+                    defaultLogSender.info("INDEXER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
+                                          task.getId(), task.getPath(), task.getSiteId(), task.getAppUserId());
                 })
                 .subscribe();
     }
@@ -79,12 +79,12 @@ public class IndexerServiceImpl implements IndexerService {
     private void stop(Task task) {
         Indexer indexer = currentRunningTasks.get(task);
         if (indexer == null) {
-            logSender.error("INDEXER / Code: 5004");
+            defaultLogSender.error("INDEXER / Code: 5004");
             return;
         }
         indexer.stop();
         currentRunningTasks.remove(task);
-        logSender.info("INDEXER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
-                       task.getPath(), task.getSiteId(), task.getAppUserId());
+        defaultLogSender.info("INDEXER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
+                              task.getPath(), task.getSiteId(), task.getAppUserId());
     }
 }

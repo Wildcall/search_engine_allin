@@ -7,24 +7,17 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import ru.malygin.helper.config.SearchEngineProperties.Msg.BaseMsg;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RequiredArgsConstructor
-public class MsgQueueDeclareFactory {
+public class QueueDeclareFactory {
 
     private final RabbitAdmin rabbitAdmin;
     private final Map<String, Queue> queuesMap = new ConcurrentHashMap<>();
     private final Map<String, Exchange> exchangesMap = new ConcurrentHashMap<>();
-
-    public Queue createQueue(BaseMsg msg) {
-        String queueName = msg.getQueue();
-        String exchangeName = msg.getExchange();
-        return createQueue(queueName, exchangeName);
-    }
 
     public Queue createQueue(String queueName,
                              String exchangeName) {

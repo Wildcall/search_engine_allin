@@ -2,12 +2,12 @@ package ru.malygin.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.malygin.config.RegistrationServiceProperties;
 import ru.malygin.exception.BadRequestException;
 import ru.malygin.model.Roles;
 import ru.malygin.model.entity.AppUser;
@@ -29,9 +29,7 @@ public class AppUserServiceImpl implements AppUserService {
     private final AppUserRepository appUserRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-
-    @Value("${email.resend:10}")
-    private long emailResendTimeInMin;
+    private final RegistrationServiceProperties regProperties;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -44,8 +42,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUser save(AppUser appUser) {
-        if (appUserRepository.existsByEmail(appUser.getEmail()))
-            throw new BadRequestException("An account for that email already exists");
+        if (appUserRepository.existsByEmail(appUser.getEmail())) throw new BadRequestException(
+                "An account for that email already exists");
         try {
             appUser.setCreateTime(LocalDateTime.now());
             appUser.setLastActionTime(appUser.getCreateTime());
@@ -100,10 +98,13 @@ public class AppUserServiceImpl implements AppUserService {
         }
         if (!appUser
                 .getLastActionTime()
-                .plusMinutes(emailResendTimeInMin)
+                .plusMinutes(regProperties
+                                     .getEmail()
+                                     .getResendTimeoutInMin())
                 .isBefore(LocalDateTime.now())) {
-            throw new BadRequestException(
-                    "Activation email has already been sent, please wait " + emailResendTimeInMin + " minutes before sending a new one");
+            throw new BadRequestException("Activation email has already been sent, please wait " + regProperties
+                    .getEmail()
+                    .getResendTimeoutInMin() + " minutes before sending a new one");
         }
         appUser.setLastActionTime(LocalDateTime.now());
         return appUserRepository.save(appUser);

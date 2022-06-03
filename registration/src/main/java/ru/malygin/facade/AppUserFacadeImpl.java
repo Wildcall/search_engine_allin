@@ -2,11 +2,9 @@ package ru.malygin.facade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.malygin.model.AuthResponse;
-import ru.malygin.model.Notification;
 import ru.malygin.model.dto.AppUserDto;
 import ru.malygin.model.entity.AppUser;
 import ru.malygin.model.entity.Role;
@@ -22,7 +20,6 @@ import java.util.Map;
 public class AppUserFacadeImpl implements AppUserFacade {
 
     private final AppUserService appUserService;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final NotificationService notificationService;
     private final JwtUtil jwtUtil;
 
@@ -30,8 +27,7 @@ public class AppUserFacadeImpl implements AppUserFacade {
     public AuthResponse save(AppUserDto appUserDto) {
         AppUser appUser = appUserDto.toAppUser();
         appUser = appUserService.save(appUser);
-        Notification notification = notificationService.createConfirmNotification(appUser);
-//        applicationEventPublisher.publishEvent(new NotificationEvent(notification));
+        notificationService.sendConfirmNotification(appUser);
         return new AuthResponse(jwtUtil.generateAccessToken(appUser),
                                 jwtUtil.generateRefreshToken(appUser),
                                 appUser.getId(),
@@ -47,8 +43,7 @@ public class AppUserFacadeImpl implements AppUserFacade {
     public String resendConfirmEmail(Authentication authentication) {
         String email = authentication.getName();
         AppUser appUser = appUserService.availableResendConfirmEmail(email);
-        Notification notification = notificationService.createConfirmNotification(appUser);
-//        applicationEventPublisher.publishEvent(new NotificationEvent(notification));
+        notificationService.sendConfirmNotification(appUser);
         return "OK";
     }
 
@@ -63,8 +58,7 @@ public class AppUserFacadeImpl implements AppUserFacade {
     public String confirmEmail(Authentication authentication) {
         String email = authentication.getName();
         AppUser appUser = appUserService.confirmEmail(email);
-        Notification notification = notificationService.createSuccessNotification(appUser);
-//        applicationEventPublisher.publishEvent(new NotificationEvent(notification));
+        notificationService.sendSuccessNotification(appUser);
         return "OK";
     }
 

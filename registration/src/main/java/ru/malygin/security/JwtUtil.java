@@ -5,11 +5,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import ru.malygin.config.RegistrationServiceProperties;
 import ru.malygin.model.entity.AppUser;
 
 import javax.validation.constraints.NotNull;
@@ -22,15 +22,11 @@ public class JwtUtil {
 
     private final Algorithm algorithm;
     private final JWTVerifier jwtVerifier;
-    @Value("${resource.exp.access}")
-    private Long accessExpTime;
-    @Value("${resource.exp.refresh}")
-    private Long refreshExpTime;
-    @Value("${resource.exp.confirm}")
-    private Long confirmExpTime;
+    private final RegistrationServiceProperties regProperties;
 
-    public JwtUtil(@Value("${resource.secret}") String secretKey) {
-        this.algorithm = Algorithm.HMAC256(secretKey);
+    public JwtUtil(RegistrationServiceProperties regProperties) {
+        this.algorithm = Algorithm.HMAC256(regProperties.getSecret());
+        this.regProperties = regProperties;
         this.jwtVerifier = JWT
                 .require(algorithm)
                 .build();
@@ -56,19 +52,25 @@ public class JwtUtil {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         log.info("GENERATE ACCESS TOKEN / Email: {}", appUser.getEmail());
-        return generateToken(appUser, roles, accessExpTime);
+        return generateToken(appUser, roles, regProperties
+                .getExpiration()
+                .getAccess());
     }
 
     public String generateRefreshToken(@NotNull AppUser appUser) {
         List<String> roles = List.of("REFRESH");
         log.info("GENERATE REFRESH TOKEN / Email: {}", appUser.getEmail());
-        return generateToken(appUser, roles, refreshExpTime);
+        return generateToken(appUser, roles, regProperties
+                .getExpiration()
+                .getRefresh());
     }
 
     public String generateConfirmToken(@NotNull AppUser appUser) {
         List<String> roles = List.of("CONFIRM");
         log.info("GENERATE CONFIRM TOKEN / Email: {}", appUser.getEmail());
-        return generateToken(appUser, roles, confirmExpTime);
+        return generateToken(appUser, roles, regProperties
+                .getExpiration()
+                .getConfirm());
     }
 
     private String generateToken(@NotNull AppUser subject,

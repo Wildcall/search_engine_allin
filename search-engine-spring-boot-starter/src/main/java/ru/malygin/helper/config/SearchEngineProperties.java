@@ -5,63 +5,41 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Data
-@Component("seProp")
+@Component("properties")
 @ConfigurationProperties("spring.search-engine")
 public class SearchEngineProperties {
 
-    private final Msg msg = new Msg();
+    private final Common common = new Common();
 
     @Data
-    public static class Msg {
+    public static class Common {
         private final Log log = new Log();
         private final Notification notification = new Notification();
-        private final Task task = new Task();
-        private final CrawlerTask crawlerTask = new CrawlerTask();
-        private final IndexerTask indexerTask = new IndexerTask();
-        private final SearcherTask searcherTask = new SearcherTask();
-
-        public interface BaseMsg {
-            String getQueue();
-
-            String getExchange();
-        }
+        private final Metrics metrics = new Metrics();
 
         @Data
-        public static class Log implements BaseMsg {
-            private Boolean sender = true;
-            private String queue = "log-queue";
-            private String exchange;
-        }
-
-        @Data
-        public static class Notification implements BaseMsg {
+        public static class Log {
             private Boolean sender = false;
-            private String queue = "notification-queue";
-            private String exchange;
+            private Boolean receiver = false;
+            private String exchange = "log-exchange";
+            private String errorRoute = "error";
+            private String infoRoute = "info";
         }
 
         @Data
-        public static class Task implements BaseMsg {
-            private String queue = "default-task-queue";
-            private String exchange;
+        public static class Notification {
+            private Boolean sender = false;
+            private Boolean receiver = false;
+            private String exchange = "notification-exchange";
+            private String notificationRoute = "notification";
         }
 
         @Data
-        public static class CrawlerTask implements BaseMsg {
-            private String queue = "crawler-task-queue";
-            private String exchange;
-        }
-
-        @Data
-        public static class IndexerTask implements BaseMsg {
-            private String queue = "indexer-task-queue";
-            private String exchange;
-        }
-
-        @Data
-        public static class SearcherTask implements BaseMsg {
-            private String queue = "searcher-task-queue";
-            private String exchange;
+        public static class Metrics {
+            private Boolean sender = false;
+            private Boolean receiver = false;
+            private String exchange = "metrics-exchange";
+            private String metricsRoute = "metrics";
         }
     }
 }

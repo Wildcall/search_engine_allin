@@ -3,16 +3,16 @@ package ru.malygin.notification.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.malygin.logsenderspringbootstarter.service.LogSender;
-import ru.malygin.notification.model.Notification;
-import ru.malygin.notification.service.NotificationSender;
+import ru.malygin.helper.model.Notification;
+import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.notification.service.NotificationService;
 
-import static ru.malygin.notification.service.NotificationSenderType.TELEGRAM;
+import static ru.malygin.notification.service.NotificationServiceType.TELEGRAM;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TelegramNotificationSender implements NotificationSender {
+public class TelegramNotificationService implements NotificationService {
 
     private final LogSender logSender;
 

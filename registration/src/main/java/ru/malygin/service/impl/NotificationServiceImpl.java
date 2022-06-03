@@ -2,9 +2,11 @@ package ru.malygin.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.malygin.model.Notification;
+import ru.malygin.config.RegistrationServiceProperties;
+import ru.malygin.helper.model.Notification;
+import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.service.senders.NotificationSender;
 import ru.malygin.model.entity.AppUser;
 import ru.malygin.security.JwtUtil;
 import ru.malygin.service.NotificationService;
@@ -20,16 +22,20 @@ import java.util.Map;
 public class NotificationServiceImpl implements NotificationService {
 
     private final JwtUtil jwtUtil;
-    @Value("${email.callback}")
-    private String callbackAddress;
+    private final NotificationSender notificationSender;
+    private final LogSender logSender;
+    private final RegistrationServiceProperties regProperties;
 
     @Override
-    public void send(Notification notification) {
-        log.error("Send notification not impl");
+    public void send(Notification n) {
+        notificationSender.send(n);
+
+        logSender.info("NOTIFICATION SEND / Type: %s / Template: %s / Send to: %s", n.getType(), n.getTemplate(),
+                       n.getSendTo());
     }
 
     @Override
-    public Notification createConfirmNotification(AppUser appUser) {
+    public void sendConfirmNotification(AppUser appUser) {
         String type = "email";
         String sendTo = appUser.getEmail();
         String subject = "Confirm email";
@@ -38,15 +44,17 @@ public class NotificationServiceImpl implements NotificationService {
         String registrationDate = appUser
                 .getCreateTime()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        String confirmLink = callbackAddress + jwtUtil.generateConfirmToken(appUser);
+        String confirmLink = regProperties
+                .getEmail()
+                .getCallbackAddress() + jwtUtil.generateConfirmToken(appUser);
         Map<String, String> payload = Map.of("name", name, "email", sendTo, "registrationDate", registrationDate,
                                              "confirmLink", confirmLink);
 
-        return new Notification(type, sendTo, subject, template, payload);
+        send(new Notification(type, sendTo, subject, template, payload));
     }
 
     @Override
-    public Notification createSuccessNotification(AppUser appUser) {
+    public void sendSuccessNotification(AppUser appUser) {
         String type = "email";
         String sendTo = appUser.getEmail();
         String subject = "Success registration";
@@ -57,6 +65,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         Map<String, String> payload = Map.of("name", name, "email", sendTo, "registrationDate", registrationDate);
 
-        return new Notification(type, sendTo, subject, template, payload);
+        send(new Notification(type, sendTo, subject, template, payload));
     }
 }

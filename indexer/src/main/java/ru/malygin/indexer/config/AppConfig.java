@@ -7,13 +7,12 @@ import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerEndpoint;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.helper.MsgQueueDeclareFactory;
+import ru.malygin.helper.QueueDeclareFactory;
 import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
 
@@ -38,7 +37,7 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue declareRPC(MsgQueueDeclareFactory queueFactory) {
+    public Queue declareRPC(QueueDeclareFactory queueFactory) {
         return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 

@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -11,8 +12,8 @@ import java.util.Map;
 @ConfigurationProperties("templates")
 public class TemplateConfig {
 
-    private Map<String, String> location;
-    private Map<String, Map<String, TemplateParam>> types;
+    private Map<String, String> location = new HashMap<>();
+    private Map<String, Map<String, TemplateParam>> types = new HashMap<>();
 
     @Data
     public static class TemplateParam {
