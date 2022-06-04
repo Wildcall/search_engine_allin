@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.helper.QueueDeclareFactory;
+import org.springframework.context.annotation.DependsOn;
+import ru.malygin.helper.service.DefaultQueueDeclareService;
 import ru.malygin.helper.service.senders.LogSender;
 import ru.malygin.helper.service.senders.MetricsSender;
 import ru.malygin.helper.service.senders.NotificationSender;
@@ -26,15 +27,15 @@ public class CommonSendersConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "spring.search-engine.common.log", name = "sender", havingValue = "true")
     @ConditionalOnMissingBean
+    @DependsOn(value = "declareLogQueue")
     public LogSender logSender(RabbitTemplate r,
-                               QueueDeclareFactory queueDeclareFactory,
                                ObjectMapper objectMapper,
+                               DefaultQueueDeclareService defaultQueueDeclareService,
                                SearchEngineProperties properties) {
         Log logProperties = properties
                 .getCommon()
                 .getLog();
-        queueDeclareFactory.createQueue(logProperties.getErrorRoute(), logProperties.getExchange());
-        queueDeclareFactory.createQueue(logProperties.getInfoRoute(), logProperties.getExchange());
+        defaultQueueDeclareService.declareLogQueue();
         DefaultLogSender defaultLogSender = new DefaultLogSender(r, objectMapper, logProperties);
         log.info("[*] Create DefaultLogSender in starter");
         return defaultLogSender;
@@ -43,14 +44,15 @@ public class CommonSendersConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "spring.search-engine.common.notification", name = "sender", havingValue = "true")
     @ConditionalOnMissingBean
+    @DependsOn(value = "declareNotificationQueue")
     public NotificationSender notificationSender(RabbitTemplate r,
-                                                 QueueDeclareFactory queueDeclareFactory,
                                                  ObjectMapper m,
+                                                 DefaultQueueDeclareService defaultQueueDeclareService,
                                                  SearchEngineProperties properties) {
         SearchEngineProperties.Common.Notification notification = properties
                 .getCommon()
                 .getNotification();
-        queueDeclareFactory.createQueue(notification.getNotificationRoute(), notification.getExchange());
+        defaultQueueDeclareService.declareNotificationQueue();
         DefaultNotificationSender notificationSender = new DefaultNotificationSender(r, m, notification);
         log.info("[*] Create DefaultNotificationSender in starter");
         return notificationSender;
@@ -59,13 +61,14 @@ public class CommonSendersConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "spring.search-engine.common.metrics", name = "sender", havingValue = "true")
     @ConditionalOnMissingBean
-    public MetricsSender metricsSender(QueueDeclareFactory queueDeclareFactory,
+    @DependsOn(value = "declareMetricsQueue")
+    public MetricsSender metricsSender(DefaultQueueDeclareService defaultQueueDeclareService,
                                        SearchEngineProperties properties) {
         SearchEngineProperties.Common.Metrics metrics = properties
                 .getCommon()
                 .getMetrics();
-        queueDeclareFactory.createQueue(metrics.getMetricsRoute(), metrics.getExchange());
-        DefaultMetricsSender defaultMetricsSender = new DefaultMetricsSender();
+        defaultQueueDeclareService.declareMetricsQueue();
+        DefaultMetricsSender defaultMetricsSender = new DefaultMetricsSender(metrics);
         log.info("[*] Create DefaultMetricsSender in starter");
         return defaultMetricsSender;
     }

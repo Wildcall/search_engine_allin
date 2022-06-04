@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import ru.malygin.helper.QueueDeclareFactory;
+import ru.malygin.helper.service.DefaultQueueDeclareService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,8 +82,9 @@ public class MsgAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public QueueDeclareFactory msgQueueDeclareFactory(RabbitAdmin a) {
+    public DefaultQueueDeclareService defaultQueueDeclareService(RabbitAdmin rabbitAdmin,
+                                                                 SearchEngineProperties properties) {
         log.info("[*] Create msgQueueDeclareFactory in starter");
-        return new QueueDeclareFactory(a);
+        return new DefaultQueueDeclareService(rabbitAdmin, properties);
     }
 }

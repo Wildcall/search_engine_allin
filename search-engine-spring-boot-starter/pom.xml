@@ -8,11 +8,13 @@
         <version>2.6.6</version>
         <relativePath/>
     </parent>
+
     <groupId>ru.malygin</groupId>
     <artifactId>searcher-engine-spring-boot-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>searcher-engine-spring-boot-starter</name>
     <description>Module with autoconfiguration for Searcher engine</description>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.service.PageService;
-import ru.malygin.helper.QueueDeclareFactory;
+import ru.malygin.helper.service.DefaultQueueDeclareService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue declareRPC(QueueDeclareFactory queueFactory) {
+    public Queue declareRPC(DefaultQueueDeclareService queueFactory) {
         return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 

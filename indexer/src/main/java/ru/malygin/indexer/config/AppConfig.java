@@ -12,7 +12,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.helper.QueueDeclareFactory;
+import ru.malygin.helper.service.DefaultQueueDeclareService;
 import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
 
@@ -37,7 +37,7 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue declareRPC(QueueDeclareFactory queueFactory) {
+    public Queue declareRPC(DefaultQueueDeclareService queueFactory) {
         return queueFactory.createQueue(PAGE_REQUEST_QUEUE, RPC_EXCHANGE);
     }
 
