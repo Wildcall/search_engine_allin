@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.malygin.taskmanager.exception.BadRequestException;
-import ru.malygin.taskmanager.exception.ResourceBadRequestException;
 import ru.malygin.taskmanager.facade.ResourceFacade;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.SiteStatus;
@@ -13,7 +12,6 @@ import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
 import ru.malygin.taskmanager.service.AppUserService;
-import ru.malygin.taskmanager.service.ResourceService;
 import ru.malygin.taskmanager.service.TaskService;
 
 import java.util.List;
@@ -26,7 +24,6 @@ public class ResourceFacadeImpl implements ResourceFacade {
 
     private final AppUserService appUserService;
     private final TaskService taskService;
-    private final ResourceService resourceService;
 
     @Override
     public Map<String, Long> start(Authentication authentication,
@@ -56,12 +53,12 @@ public class ResourceFacadeImpl implements ResourceFacade {
             throw new BadRequestException("You cannot start a task for which a previous task has not been finished");
 
         // Resource for the task is not available
-        if (resourceService.resourceNotAvailable(task.getType()))
-            throw new BadRequestException("Resource for the task is not available, try again later");
-
-        // Resource responded with an error
-        if (!resourceService.start(task))
-            throw new ResourceBadRequestException("The task resource responded with an error");
+//        if (resourceService.resourceNotAvailable(task.getType()))
+//            throw new BadRequestException("Resource for the task is not available, try again later");
+//
+//        // Resource responded with an error
+//        if (!resourceService.start(task))
+//            throw new ResourceBadRequestException("The task resource responded with an error");
 
         taskService.resetTask(task);
         appUserService.updateLastActionTime(appUser);
@@ -84,12 +81,12 @@ public class ResourceFacadeImpl implements ResourceFacade {
                 "You cannot stop a task that has not yet started");
 
         // Resource for the task is not available
-        if (resourceService.resourceNotAvailable(task.getType())) throw new BadRequestException(
-                "Resource for the task is not available, try again later");
-
-        // Resource responded with an error
-        if (!resourceService.stop(task)) throw new ResourceBadRequestException(
-                "The task resource responded with an error");
+//        if (resourceService.resourceNotAvailable(task.getType())) throw new BadRequestException(
+//                "Resource for the task is not available, try again later");
+//
+//        // Resource responded with an error
+//        if (!resourceService.stop(task)) throw new ResourceBadRequestException(
+//                "The task resource responded with an error");
 
         appUserService.updateLastActionTime(appUser);
         return "Task successfully interrupted";

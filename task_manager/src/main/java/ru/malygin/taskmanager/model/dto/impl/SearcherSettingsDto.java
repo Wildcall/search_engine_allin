@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.view.SettingView;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.SearcherSetting;
 
 import javax.validation.constraints.NotBlank;
@@ -22,7 +22,7 @@ public class SearcherSettingsDto implements ResourceSettingDto {
 
     @Null(groups = {SettingView.class})
     @JsonView(SettingView.Response.class)
-    private static ResourceType type = ResourceType.SEARCHER;
+    private static ServiceType type = ServiceType.SEARCHER;
 
     @NotNull(groups = {SettingView.New.class})
     @NotBlank(groups = {SettingView.New.class})
@@ -30,7 +30,7 @@ public class SearcherSettingsDto implements ResourceSettingDto {
     private String name;
 
     @Override
-    public ResourceType getResourceType() {
+    public ServiceType getResourceType() {
         return type;
     }
 

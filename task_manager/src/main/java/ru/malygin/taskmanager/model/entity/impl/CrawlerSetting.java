@@ -3,7 +3,7 @@ package ru.malygin.taskmanager.model.entity.impl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.impl.CrawlerSettingsDto;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
@@ -15,7 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class CrawlerSetting implements ResourceSetting {
 
-    private static ResourceType type = ResourceType.CRAWLER;
+    private static ServiceType type = ServiceType.CRAWLER;
     private String referrer;
     private String userAgent;
     private Integer delayInMs;
@@ -23,7 +23,7 @@ public class CrawlerSetting implements ResourceSetting {
     private Integer timeOutInMs;
 
     @Override
-    public ResourceType getType() {
+    public ServiceType getType() {
         return type;
     }
 

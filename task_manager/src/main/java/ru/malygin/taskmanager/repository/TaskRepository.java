@@ -3,7 +3,7 @@ package ru.malygin.taskmanager.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
@@ -23,7 +23,7 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
                                        Site site);
 
     List<Task> findAllByAppUserAndType(AppUser appUser,
-                                       ResourceType resourceType);
+                                       ServiceType serviceType);
 
     @Query(nativeQuery = true, value = "select type from _task where app_user_id = :appUserId and site_id = :siteId")
     List<String> findAllResourceIdByAppUserAndSite(@Param("appUserId") Long appUserId,

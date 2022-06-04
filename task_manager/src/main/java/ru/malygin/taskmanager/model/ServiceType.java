@@ -1,6 +1,6 @@
 package ru.malygin.taskmanager.model;
 
-public enum ResourceType {
+public enum ServiceType {
     CRAWLER(0),
     INDEXER(1),
     SEARCHER(2),
@@ -9,7 +9,7 @@ public enum ResourceType {
 
     private final int order;
 
-    ResourceType(int order) {
+    ServiceType(int order) {
         this.order = order;
     }
 

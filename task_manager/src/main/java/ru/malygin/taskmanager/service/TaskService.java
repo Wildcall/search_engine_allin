@@ -1,6 +1,6 @@
 package ru.malygin.taskmanager.service;
 
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
@@ -27,7 +27,7 @@ public interface TaskService {
                                        Site site);
 
     List<Task> findAllByAppUserAndResourceType(AppUser appUser,
-                                               ResourceType resourceType);
+                                               ServiceType serviceType);
 
     List<Task> findAllByAppUserAndTaskState(AppUser appUser,
                                             TaskState taskState);

@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.malygin.taskmanager.exception.BadRequestException;
 import ru.malygin.taskmanager.facade.TaskFacade;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.TaskDto;
@@ -39,13 +39,13 @@ public class TaskFacadeImpl implements TaskFacade {
         AppUser appUser = appUserService.findByAuthentication(authentication);
         Site site = siteService.findById(appUser, taskDto.getSiteId());
         Setting setting = settingsService.findById(appUser, taskDto.getSettingId());
-        ResourceType resourceType = setting.getType();
+        ServiceType serviceType = setting.getType();
 
         Task task = (Task) taskDto.toBaseEntity();
         task.setAppUser(appUser);
         task.setSite(site);
         task.setSetting(setting);
-        task.setType(resourceType);
+        task.setType(serviceType);
         task.setTaskState(TaskState.CREATE);
 
         taskService.save(task);
@@ -97,9 +97,9 @@ public class TaskFacadeImpl implements TaskFacade {
     public List<BaseDto> findAllByResourceStringType(Authentication authentication,
                                                      String type) {
         AppUser appUser = appUserService.findByAuthentication(authentication);
-        ResourceType resourceType = convertStringTypeToResourceType(type);
+        ServiceType serviceType = convertStringTypeToResourceType(type);
         return taskService
-                .findAllByAppUserAndResourceType(appUser, resourceType)
+                .findAllByAppUserAndResourceType(appUser, serviceType)
                 .stream()
                 .map(Task::toBaseDto)
                 .toList();
@@ -144,9 +144,9 @@ public class TaskFacadeImpl implements TaskFacade {
         return id;
     }
 
-    private ResourceType convertStringTypeToResourceType(String type) {
+    private ServiceType convertStringTypeToResourceType(String type) {
         try {
-            return ResourceType.valueOf(type.toUpperCase(Locale.ROOT));
+            return ServiceType.valueOf(type.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             throw new BadRequestException(
                     "Type of settings: " + type + " is invalid. Use one of [crawler, indexer, searcher]");

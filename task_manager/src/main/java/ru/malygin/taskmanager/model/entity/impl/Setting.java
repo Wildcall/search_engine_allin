@@ -6,7 +6,7 @@ import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.SettingDto;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 
 import javax.persistence.*;
 
@@ -26,7 +26,7 @@ public class Setting implements BaseEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private ResourceType type;
+    private ServiceType type;
 
     @Convert(converter = ServiceSettingsConverter.class)
     private ResourceSetting resourceSetting;

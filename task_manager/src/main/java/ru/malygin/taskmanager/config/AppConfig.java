@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.taskmanager.model.entity.impl.Task;
-
-import java.util.HashMap;
-import java.util.Map;
+import ru.malygin.helper.service.QueueDeclareService;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,9 +12,14 @@ import java.util.Map;
 public class AppConfig {
 
     @Bean
-    protected Map<String, Class<?>> idClassMap() {
-        Map<String, Class<?>> map = new HashMap<>();
-        map.put("Task", Task.class);
-        return map;
+    public boolean declareQueue(TaskManagerProperties properties,
+                                QueueDeclareService queueDeclareService) {
+        TaskManagerProperties.Crawler crawler = properties.getCrawler();
+        TaskManagerProperties.Indexer indexer = properties.getIndexer();
+        TaskManagerProperties.Searcher searcher = properties.getSearcher();
+        queueDeclareService.createQueue(crawler.getRoute(), crawler.getExchange());
+        queueDeclareService.createQueue(indexer.getRoute(), indexer.getExchange());
+        queueDeclareService.createQueue(searcher.getRoute(), searcher.getExchange());
+        return true;
     }
 }

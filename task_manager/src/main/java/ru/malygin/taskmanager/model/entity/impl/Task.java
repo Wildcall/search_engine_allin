@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.TaskDto;
@@ -42,7 +42,7 @@ public class Task implements BaseEntity {
     private Setting setting;
 
     @Enumerated(EnumType.STRING)
-    private ResourceType type;
+    private ServiceType type;
 
     private Boolean sendNotification;
     private Boolean autoContinue;

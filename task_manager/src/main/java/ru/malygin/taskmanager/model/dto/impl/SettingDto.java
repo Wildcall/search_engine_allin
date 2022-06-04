@@ -10,7 +10,7 @@ import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.view.SettingView;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 
 @Slf4j
@@ -27,7 +27,7 @@ public class SettingDto implements BaseDto {
     private String name;
 
     @JsonView({SettingView.Response.class})
-    private ResourceType type;
+    private ServiceType type;
 
     @JsonView({SettingView.Response.class})
     private ResourceSettingDto resourceSettingDto;

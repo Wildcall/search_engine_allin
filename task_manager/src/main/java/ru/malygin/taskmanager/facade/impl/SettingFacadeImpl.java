@@ -9,7 +9,7 @@ import ru.malygin.taskmanager.facade.SettingFacade;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 import ru.malygin.taskmanager.service.AppUserService;
@@ -31,13 +31,13 @@ public class SettingFacadeImpl implements SettingFacade {
                         ResourceSettingDto resourceSettingDto) {
         AppUser appUser = appUserService.findByAuthentication(authentication);
         ResourceSetting resourceSetting = resourceSettingDto.toResourceSetting();
-        ResourceType resourceType = resourceSetting.getType();
+        ServiceType serviceType = resourceSetting.getType();
 
         Setting setting = new Setting();
         setting.setAppUser(appUser);
         setting.setResourceSetting(resourceSetting);
         setting.setName(resourceSettingDto.getName());
-        setting.setType(resourceType);
+        setting.setType(serviceType);
 
         settingsService.save(appUser, setting);
         appUserService.updateLastActionTime(appUser);
@@ -48,9 +48,9 @@ public class SettingFacadeImpl implements SettingFacade {
     public List<BaseDto> findAllByResourceStringType(Authentication authentication,
                                                      String type) {
         AppUser appUser = appUserService.findByAuthentication(authentication);
-        ResourceType resourceType = convertStringTypeToResourceType(type);
+        ServiceType serviceType = convertStringTypeToResourceType(type);
         return settingsService
-                .findAllByResourceType(appUser, resourceType)
+                .findAllByResourceType(appUser, serviceType)
                 .stream()
                 .map(Setting::toBaseDto)
                 .toList();
@@ -84,9 +84,9 @@ public class SettingFacadeImpl implements SettingFacade {
         return id;
     }
 
-    private ResourceType convertStringTypeToResourceType(String type) {
+    private ServiceType convertStringTypeToResourceType(String type) {
         try {
-            return ResourceType.valueOf(type.toUpperCase(Locale.ROOT));
+            return ServiceType.valueOf(type.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             throw new BadRequestException(
                     "Type of settings: " + type + " is invalid. Use one of [crawler, indexer, searcher]");

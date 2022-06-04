@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.view.SettingView;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.CrawlerSetting;
 
 import javax.validation.constraints.*;
@@ -21,7 +21,7 @@ public class CrawlerSettingsDto implements ResourceSettingDto {
 
     @Null(groups = {SettingView.class})
     @JsonView(SettingView.Response.class)
-    private static ResourceType type = ResourceType.CRAWLER;
+    private static ServiceType type = ServiceType.CRAWLER;
 
     @NotNull(groups = {SettingView.New.class})
     @NotBlank(groups = {SettingView.New.class})
@@ -67,7 +67,7 @@ public class CrawlerSettingsDto implements ResourceSettingDto {
     }
 
     @Override
-    public ResourceType getResourceType() {
+    public ServiceType getResourceType() {
         return type;
     }
 

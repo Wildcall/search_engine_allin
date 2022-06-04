@@ -1,7 +1,7 @@
 package ru.malygin.taskmanager.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 
@@ -14,7 +14,7 @@ public interface SettingRepository extends CrudRepository<Setting, Long> {
                                          AppUser appUser);
 
     List<Setting> findByAppUserAndType(AppUser appUser,
-                                       ResourceType resourceType);
+                                       ServiceType serviceType);
 
     List<Setting> findByAppUser(AppUser appUser);
 }

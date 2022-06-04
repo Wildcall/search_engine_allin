@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.malygin.taskmanager.exception.BadRequestException;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 import ru.malygin.taskmanager.repository.SettingRepository;
@@ -45,8 +45,8 @@ public class SettingServiceImpl implements SettingsService {
 
     @Override
     public List<Setting> findAllByResourceType(AppUser appUser,
-                                               ResourceType resourceType) {
-        return settingRepository.findByAppUserAndType(appUser, resourceType);
+                                               ServiceType serviceType) {
+        return settingRepository.findByAppUserAndType(appUser, serviceType);
     }
 
     @Override

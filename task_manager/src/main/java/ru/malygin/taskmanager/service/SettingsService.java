@@ -1,6 +1,6 @@
 package ru.malygin.taskmanager.service;
 
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 
@@ -14,7 +14,7 @@ public interface SettingsService {
     List<Setting> findAll(AppUser appUser);
 
     List<Setting> findAllByResourceType(AppUser appUser,
-                                        ResourceType resourceType);
+                                        ServiceType serviceType);
 
     Setting findById(AppUser appUser,
                      Long id);

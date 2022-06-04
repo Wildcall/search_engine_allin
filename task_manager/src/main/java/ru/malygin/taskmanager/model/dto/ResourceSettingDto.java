@@ -1,10 +1,10 @@
 package ru.malygin.taskmanager.model.dto;
 
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 
 public interface ResourceSettingDto {
-    ResourceType getResourceType();
+    ServiceType getResourceType();
 
     String getName();
 

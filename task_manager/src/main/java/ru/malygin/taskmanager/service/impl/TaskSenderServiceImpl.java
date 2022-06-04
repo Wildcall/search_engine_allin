@@ -1,4 +1,4 @@
-package ru.malygin.helper.service.senders;
+package ru.malygin.taskmanager.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,21 +8,23 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import ru.malygin.taskmanager.config.TaskManagerProperties.ServiceQueueProperties;
+import ru.malygin.taskmanager.service.TaskSenderService;
 
 import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class TaskSender {
+@Service
+public class TaskSenderServiceImpl implements TaskSenderService {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper mapper;
-    @Value(value = "${spring.application.name}")
-    private String appName;
 
+    @Override
     public void send(Map<String, Object> map,
-                     String queue,
+                     ServiceQueueProperties serviceQueueProperties,
                      String action) {
         if (map != null) {
             try {
@@ -34,9 +36,10 @@ public class TaskSender {
                         .setContentType(MessageProperties.CONTENT_TYPE_JSON)
                         .setHeader("__TypeId__", "Hashtable")
                         .setHeader("action", action)
-                        .setHeader("app", appName)
                         .build();
-                rabbitTemplate.send(queue, message);
+                rabbitTemplate.send(serviceQueueProperties.getExchange(),
+                                    serviceQueueProperties.getRoute(),
+                                    message);
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }

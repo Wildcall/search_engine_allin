@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.malygin.taskmanager.model.ResourceType;
+import ru.malygin.taskmanager.model.ServiceType;
 import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.view.TaskView;
@@ -62,7 +62,7 @@ public class TaskDto implements BaseDto {
 
     @Null(groups = {TaskView.New.class, TaskView.Update.class})
     @JsonView({TaskView.Response.class})
-    private ResourceType type;
+    private ServiceType type;
 
     @Null(groups = {TaskView.New.class, TaskView.Update.class})
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
