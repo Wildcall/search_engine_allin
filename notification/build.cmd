@@ -1,0 +1,1 @@
+docker build --tag=search-engine/notification --rm=true .

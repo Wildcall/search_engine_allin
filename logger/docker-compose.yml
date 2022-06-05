@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  logger:
+    container_name: logger-service
+    image: search-engine/logger:latest
+    networks:
+      - search-engine
+    env_file:
+      - env.txt
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 256M
+
+networks:
+  search-engine:
+    driver: bridge
+    name: search-engine-network
+    external: true

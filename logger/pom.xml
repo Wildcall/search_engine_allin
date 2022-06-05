@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.malygin</groupId>
     <artifactId>logger</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>Logging service</name>
     <description>Logging service for search engine</description>
     <packaging>jar</packaging>
@@ -41,10 +41,46 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>Build Docker image</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="build.cmd"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>Docker compose UP</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="up.cmd"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>

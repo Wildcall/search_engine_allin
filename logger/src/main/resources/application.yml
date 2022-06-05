@@ -2,10 +2,10 @@ spring:
   application:
     name: logger
   rabbitmq:
-    host: localhost
-    username: guest
-    password: guest
-    port: 5672
+    host: ${RABBITMQ_HOST}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    port: ${RABBITMQ_PORT}
   search-engine:
     common:
       log:

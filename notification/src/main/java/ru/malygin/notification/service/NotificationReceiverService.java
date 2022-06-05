@@ -24,9 +24,9 @@ public class NotificationReceiverService {
     private final LogSender logSender;
 
     public NotificationReceiverService(LogSender logSender,
-                                       List<NotificationService> notificationSenders) {
+                                       List<NotificationService> notificationServices) {
         this.logSender = logSender;
-        map = notificationSenders
+        map = notificationServices
                 .stream()
                 .collect(Collectors.toMap(NotificationService::getType, Function.identity()));
     }
