@@ -2,14 +2,16 @@ package ru.malygin.crawler.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import ru.malygin.crawler.crawler.Crawler;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.service.CrawlerService;
 import ru.malygin.crawler.service.PageService;
-import ru.malygin.helper.model.TaskAction;
-import ru.malygin.helper.model.TaskReceiveEvent;
-import ru.malygin.helper.service.senders.impl.DefaultLogSender;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.TaskCallbackEvent;
+import ru.malygin.helper.model.TaskState;
+import ru.malygin.helper.service.senders.LogSender;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -24,39 +26,27 @@ public class CrawlerServiceImpl implements CrawlerService {
     private final Map<Task, Crawler> currentRunningTasks = new ConcurrentHashMap<>();
     private final PageService pageService;
     private final Crawler.Builder crawlerBuilder;
-    private final DefaultLogSender defaultLogSender;
+    private final LogSender logSender;
+    private final ApplicationEventPublisher publisher;
 
     @Override
-    public void process(TaskReceiveEvent event) {
-        TaskAction action = event.getAction();
-        Task task = (Task) event.getTask();
-        log.info("Received: {}", task);
-        if (action.equals(TaskAction.START)) {
-            this.start(task);
-            return;
-        }
-        if (action.equals(TaskAction.STOP)) {
-            this.stop(task);
-        }
-    }
-
-    private void start(Task task) {
+    public void start(Task task) {
         Long siteId = task.getSiteId();
         Long appUserId = task.getAppUserId();
 
         //  @formatter:off
         if (currentRunningTasks.get(task) != null) {
-            defaultLogSender.error("CRAWLER / Code: 6001");
+            publishErrorCallbackEvent(task, 6001);
             return;
         }
 
         if (currentRunningTasks.keySet().stream().anyMatch(t -> t.getPath().equalsIgnoreCase(task.getPath()))) {
-            defaultLogSender.error("CRAWLER / Code: 6002");
+            publishErrorCallbackEvent(task, 6002);
             return;
         }
 
         if (siteNotAvailable(task)) {
-            defaultLogSender.error("CRAWLER / Code: 6003");
+            publishErrorCallbackEvent(task, 6003);
             return;
         }
         //  @formatter:on
@@ -67,29 +57,29 @@ public class CrawlerServiceImpl implements CrawlerService {
                     Crawler crawler = crawlerBuilder.build();
                     crawler.start(task, currentRunningTasks);
                     currentRunningTasks.put(task, crawler);
-                    defaultLogSender.info("CRAWLER / Action: start / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s",
-                                          task.getId(),
-                                          task.getPath(),
-                                          task.getSiteId(),
-                                          task.getAppUserId());
                 })
                 .subscribe();
     }
 
-    private void stop(Task task) {
+    @Override
+    public void stop(Task task) {
         Crawler crawler = currentRunningTasks.get(task);
         if (crawler == null) {
-            defaultLogSender.error("CRAWLER / Code: 6004");
+            publishErrorCallbackEvent(task, 6004);
             return;
         }
         crawler.stop();
         currentRunningTasks.remove(task);
-        defaultLogSender.info("CRAWLER / Action: stop / TaskId: %s / Path: %s / SiteId: %s / AppUserId: %s", task.getId(),
-                              task.getPath(), task.getSiteId(), task.getAppUserId());
+    }
+
+    private void publishErrorCallbackEvent(Task task,
+                                           int code) {
+        logSender.error("CRAWLER ERROR / Id: %s / Code: %s", task.getId(), code);
+        publisher.publishEvent(new TaskCallbackEvent(new TaskCallback(task.getId(), TaskState.ERROR, null, null)));
     }
 
     private boolean siteNotAvailable(Task task) {
-        defaultLogSender.info("PING / Resource: %s", task.getPath());
+        logSender.info("PING / Resource: %s", task.getPath());
         try {
             URL url = new URL(task.getPath());
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
@@ -98,9 +88,9 @@ public class CrawlerServiceImpl implements CrawlerService {
                 return false;
             }
         } catch (Exception e) {
-            defaultLogSender.error("PING ERROR  / Resource: %s / Message: %s", task.getPath(), e.getMessage());
+            logSender.error("PING ERROR  / Resource: %s / Message: %s", task.getPath(), e.getMessage());
         }
-        defaultLogSender.error("PING ERROR  / Resource: %s", task.getPath());
+        logSender.error("PING ERROR  / Resource: %s", task.getPath());
         return true;
     }
 }

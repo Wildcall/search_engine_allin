@@ -3,8 +3,12 @@ package ru.malygin.indexer.indexer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.TaskCallbackEvent;
+import ru.malygin.helper.model.TaskState;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.model.entity.Statistic;
 import ru.malygin.indexer.service.StatisticService;
@@ -23,6 +27,7 @@ public final class Indexer implements Runnable {
     private final StatisticService statisticService;
     private final PageParser.Builder builder;
     private final PageFetcher pageFetcher;
+    private final ApplicationEventPublisher publisher;
     // init
     private final AtomicInteger stateCode = new AtomicInteger(0);
     private final AtomicInteger parsedPages = new AtomicInteger(0);
@@ -30,14 +35,14 @@ public final class Indexer implements Runnable {
     // components
     private PageParser pageParser;
     // init in start
+    private TaskState taskState = TaskState.CREATE;
     private Task task;
     private Map<Task, Indexer> currentRunningTasks;
     private Statistic statistic;
     private String sitePath;
     private Long siteId;
     private Long appUserId;
-    // util
-    private Long timerCounter;
+
 
     private static void timeOut100ms() {
         try {
@@ -73,17 +78,18 @@ public final class Indexer implements Runnable {
         //  @formatter:on
     }
 
+    /**
+     * The method interrupts the algorithm
+     */
     public void stop() {
-        stateCode.set(4);
+        changeTaskState(TaskState.INTERRUPT);
     }
 
     @Override
     public void run() {
         statistic.setStartTime(LocalDateTime.now());
 
-        timerCounter = System.currentTimeMillis();
-
-        stateCode.set(1);
+        changeTaskState(TaskState.START);
 
         pageFetcher
                 .fetch(siteId, appUserId)
@@ -108,10 +114,7 @@ public final class Indexer implements Runnable {
         AtomicBoolean savedProcess = new AtomicBoolean(false);
         while (true) {
             timeOut100ms();
-            // ERROR
-            if (stateCode.get() == 5) {
-                break;
-            }
+
             // INTERRUPT
             if (stateCode.get() == 4) {
                 saveAndPublishFinalStat();
@@ -130,10 +133,6 @@ public final class Indexer implements Runnable {
                 saveAndPublishFinalStat();
                 break;
             }
-            // SEND EVENT EVERY SendFreqInMs
-            if (System.currentTimeMillis() - timerCounter > task.getEventFreqInMs()) {
-                publishCurrentStat();
-            }
         }
         currentRunningTasks.remove(task);
     }
@@ -145,13 +144,8 @@ public final class Indexer implements Runnable {
                 .subscribe();
     }
 
-    private void publishCurrentStat() {
-        setActualStatistics();
-        timerCounter = System.currentTimeMillis();
-    }
-
     private void setActualStatistics() {
-        statistic.setEndTime(stateCode.get() == 4 || stateCode.get() == 3 ? LocalDateTime.now() : null);
+        statistic.setEndTime(!taskState.equals(TaskState.START) ? LocalDateTime.now() : null);
         statistic.setParsedPages(parsedPages.get());
         statistic.setSavedLemmas(pageParser
                                          .getCreatedLemmas()
@@ -161,6 +155,13 @@ public final class Indexer implements Runnable {
                                             .get());
     }
 
+    private void changeTaskState(TaskState state) {
+        this.taskState = state;
+        setActualStatistics();
+        publisher.publishEvent(new TaskCallbackEvent(
+                new TaskCallback(task.getId(), taskState, statistic.getStartTime(), statistic.getEndTime())));
+    }
+
     @Component
     @RequiredArgsConstructor
     public static final class Builder {
@@ -168,9 +169,10 @@ public final class Indexer implements Runnable {
         private final StatisticService statisticService;
         private final PageParser.Builder builder;
         private final PageFetcher pageFetcher;
+        private final ApplicationEventPublisher publisher;
 
         public Indexer build() {
-            return new Indexer(statisticService, builder, pageFetcher);
+            return new Indexer(statisticService, builder, pageFetcher, publisher);
         }
     }
 }

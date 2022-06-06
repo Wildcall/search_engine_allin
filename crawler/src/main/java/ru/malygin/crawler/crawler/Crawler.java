@@ -2,20 +2,22 @@ package ru.malygin.crawler.crawler;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.model.entity.Statistic;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.crawler.service.StatisticService;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.TaskCallbackEvent;
+import ru.malygin.helper.model.TaskState;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The class that performs the distribution of tasks for crawling and downloading sites, parsing content and saving the site content to the database.
@@ -34,8 +36,8 @@ public final class Crawler implements Runnable {
     // init in builder
     private final StatisticService statisticService;
     private final PageService pageService;
+    private final ApplicationEventPublisher publisher;
     // init
-    private final AtomicInteger stateCode = new AtomicInteger(0);
     private final Queue<Page> pagesQueue = new ConcurrentLinkedQueue<>();
     private final Queue<String> linksQueue = new ConcurrentLinkedQueue<>();
     private final Queue<Page> saveQueue = new ConcurrentLinkedQueue<>();
@@ -44,12 +46,11 @@ public final class Crawler implements Runnable {
     private PageSaver pageSaver;
     private LinkParser linkParser;
     // init in start
+    private TaskState taskState = TaskState.CREATE;
     private Task task;
     private Map<Task, Crawler> currentRunningTasks;
     private Statistic statistic;
     private String sitePath;
-    // util
-    private Long timerCounter;
 
     private static void timeOut100ms() {
         try {
@@ -104,15 +105,14 @@ public final class Crawler implements Runnable {
      * The method interrupts the algorithm
      */
     public void stop() {
-        stateCode.set(4);
+        changeTaskState(TaskState.INTERRUPT);
     }
 
     @Override
     public void run() {
         statistic.setStartTime(LocalDateTime.now());
-        timerCounter = System.currentTimeMillis();
 
-        stateCode.set(1);
+        changeTaskState(TaskState.START);
 
         linksQueue.add(sitePath);
 
@@ -128,16 +128,12 @@ public final class Crawler implements Runnable {
             timeOut100ms();
             checkNormalComplete();
 
-            if (stateCode.get() == 3 || stateCode.get() == 4) {
+            if (!taskState.equals(TaskState.START)) {
                 pageFetcher.stop();
                 linkParser.stop();
                 pageSaver.stop();
                 saveAndPublishFinalStat();
                 break;
-            }
-
-            if (System.currentTimeMillis() - timerCounter > task.getEventFreqInMs()) {
-                publishCurrentStat();
             }
         }
         currentRunningTasks.remove(task);
@@ -151,7 +147,7 @@ public final class Crawler implements Runnable {
                 && !pageFetcher.getServe()
                 && !linkParser.getServe()
                 && !pageSaver.getServe()) {
-            stateCode.set(3);
+            changeTaskState(TaskState.COMPLETE);
         }
         //  @formatter:on
     }
@@ -161,20 +157,21 @@ public final class Crawler implements Runnable {
         statisticService
                 .save(statistic)
                 .subscribe();
-
-    }
-
-    private void publishCurrentStat() {
-        setActualStatistics();
-        timerCounter = System.currentTimeMillis();
     }
 
     private void setActualStatistics() {
-        statistic.setEndTime(stateCode.get() == 4 || stateCode.get() == 3 ? LocalDateTime.now() : null);
+        statistic.setEndTime(!taskState.equals(TaskState.START) ? LocalDateTime.now() : null);
         statistic.setSavedPages(pageSaver.getCompleteTasks());
         statistic.setFetchPages(pageFetcher.getCompleteTasks());
         statistic.setErrors(pageSaver.getErrorsCount());
         statistic.setLinksCount(linkParser.getCompleteTasks());
+    }
+
+    private void changeTaskState(TaskState state) {
+        this.taskState = state;
+        setActualStatistics();
+        publisher.publishEvent(new TaskCallbackEvent(
+                new TaskCallback(task.getId(), taskState, statistic.getStartTime(), statistic.getEndTime())));
     }
 
     @Component
@@ -183,9 +180,10 @@ public final class Crawler implements Runnable {
 
         private final StatisticService statisticService;
         private final PageService pageService;
+        private final ApplicationEventPublisher publisher;
 
         public Crawler build() {
-            return new Crawler(statisticService, pageService);
+            return new Crawler(statisticService, pageService, publisher);
         }
     }
 }

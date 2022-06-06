@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.view.SiteView;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
-import ru.malygin.taskmanager.model.entity.SiteStatus;
+import ru.malygin.taskmanager.model.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 
 import javax.validation.constraints.NotBlank;

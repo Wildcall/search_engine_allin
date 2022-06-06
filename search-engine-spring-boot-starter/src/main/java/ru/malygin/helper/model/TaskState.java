@@ -1,15 +1,14 @@
-package ru.malygin.taskmanager.model;
+package ru.malygin.helper.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.Arrays;
 
-@Getter
 @AllArgsConstructor
 public enum TaskState {
     CREATE(0, ""),
-    START(1, "task_start"),
+    SENDING(1, ""),
+    START(2, "task_start"),
     COMPLETE(3, "task_end"),
     INTERRUPT(4, "task_interrupt"),
     ERROR(5, "task_error");
@@ -23,5 +22,13 @@ public enum TaskState {
                 .filter(taskState -> taskState.getState() == state)
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
+    }
+
+    public int getState() {
+        return this.state;
+    }
+
+    public String getTemplate() {
+        return this.template;
     }
 }

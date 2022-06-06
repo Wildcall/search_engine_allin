@@ -30,4 +30,10 @@ public interface TaskFacade {
 
     Long deleteById(Authentication authentication,
                     Long id);
+
+    BaseDto start(Authentication authentication,
+                  Long id);
+
+    BaseDto stop(Authentication authentication,
+                 Long id);
 }

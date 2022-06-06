@@ -13,6 +13,7 @@ import ru.malygin.registration.config.RegistrationServiceProperties;
 import ru.malygin.registration.model.entity.AppUser;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,9 @@ public class JwtUtil {
     private final RegistrationServiceProperties regProperties;
 
     public JwtUtil(RegistrationServiceProperties regProperties) {
-        this.algorithm = Algorithm.HMAC256(regProperties.getSecret());
+        this.algorithm = Algorithm.HMAC256(regProperties
+                                                   .getSecret()
+                                                   .getBytes(StandardCharsets.UTF_8));
         this.regProperties = regProperties;
         this.jwtVerifier = JWT
                 .require(algorithm)

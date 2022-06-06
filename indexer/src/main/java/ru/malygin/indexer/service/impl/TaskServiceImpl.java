@@ -1,14 +1,14 @@
-package ru.malygin.crawler.service.impl;
+package ru.malygin.indexer.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.malygin.crawler.model.Task;
-import ru.malygin.crawler.service.CrawlerService;
-import ru.malygin.crawler.service.TaskService;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
 import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.indexer.model.Task;
+import ru.malygin.indexer.service.IndexerService;
+import ru.malygin.indexer.service.TaskService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,7 +16,7 @@ import ru.malygin.helper.service.senders.LogSender;
 public class TaskServiceImpl implements TaskService {
 
     private final LogSender logSender;
-    private final CrawlerService crawlerService;
+    private final IndexerService indexerService;
 
     @Override
     public void process(TaskReceiveEvent event) {
@@ -24,10 +24,10 @@ public class TaskServiceImpl implements TaskService {
         Task task = (Task) event.getTask();
         logSender.info("TASK RECEIVE / Id: %s / Action: %s", task.getId(), action.name());
         if (action.equals(TaskAction.START)) {
-            crawlerService.start(task);
+            indexerService.start(task);
         }
         if (action.equals(TaskAction.STOP)) {
-            crawlerService.stop(task);
+            indexerService.stop(task);
         }
     }
 

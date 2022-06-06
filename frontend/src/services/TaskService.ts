@@ -28,13 +28,13 @@ export class TaskService {
         return this.taskApi.delete(`/task/${id}`)
     }
 
-    static async start(id: number): Promise<AxiosResponse<SseParam>> {
+    static async start(id: number): Promise<AxiosResponse<TaskResponse>> {
         console.log("TaskService / start")
-        return this.taskApi.get<SseParam>(`/resource/start/${id}`)
+        return this.taskApi.get<TaskResponse>(`/task/start/${id}`)
     }
 
-    static async stop(id: number): Promise<AxiosResponse<string>> {
+    static async stop(id: number): Promise<AxiosResponse<TaskResponse>> {
         console.log("TaskService / stop")
-        return this.taskApi.get<string>(`/resource/stop/${id}`)
+        return this.taskApi.get<TaskResponse>(`/task/stop/${id}`)
     }
 }

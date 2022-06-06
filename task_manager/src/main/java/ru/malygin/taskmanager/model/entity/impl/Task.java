@@ -1,12 +1,12 @@
 package ru.malygin.taskmanager.model.entity.impl;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-import ru.malygin.taskmanager.model.ServiceType;
-import ru.malygin.taskmanager.model.TaskState;
+import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.model.TaskState;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.TaskDto;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
@@ -20,7 +20,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "_task")
 public class Task implements BaseEntity {
@@ -30,15 +30,15 @@ public class Task implements BaseEntity {
     private Long id;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private AppUser appUser;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Site site;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Setting setting;
 
     @Enumerated(EnumType.STRING)
@@ -51,7 +51,7 @@ public class Task implements BaseEntity {
     private LocalDateTime createTime;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    
+
     @Enumerated(EnumType.STRING)
     private TaskState taskState;
 

@@ -9,7 +9,7 @@ import ru.malygin.taskmanager.facade.SettingFacade;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.taskmanager.model.ServiceType;
+import ru.malygin.helper.model.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 import ru.malygin.taskmanager.service.AppUserService;

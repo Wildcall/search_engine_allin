@@ -1,26 +1,26 @@
-package ru.malygin.helper.service;
+package ru.malygin.helper.service.receivers.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.util.Assert;
 import ru.malygin.helper.model.TaskAction;
 import ru.malygin.helper.model.TaskReceiveEvent;
+import ru.malygin.helper.service.receivers.TaskReceiver;
 
 import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class TaskReceiver {
+public class DefaultTaskReceiver implements TaskReceiver {
 
     private final ApplicationEventPublisher publisher;
     private final ObjectMapper objectMapper;
     private final Map<String, Class<?>> idClassMap;
 
-    @RabbitListener(queues = "#{seProp.getMsg().getTask().getQueue()}", id = "#{seProp.getMsg().getTask().getQueue()}")
+    @Override
     public void receiveTask(Map<String, Object> taskMap,
                             @Header("action") String action) {
         Assert.notNull(taskMap, "Task map must not be null");

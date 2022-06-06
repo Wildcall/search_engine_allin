@@ -1,7 +1,7 @@
 package ru.malygin.taskmanager.model.entity.impl;
 
 import lombok.Data;
-import ru.malygin.taskmanager.model.ServiceType;
+import ru.malygin.helper.model.ServiceType;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.impl.SearcherSettingsDto;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;

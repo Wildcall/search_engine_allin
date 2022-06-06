@@ -41,6 +41,6 @@ public class LogReceiverService {
                                                .getMessageProperties()
                                                .getTimestamp()
                                                .getTime()));
-        logProcessService.processInfoLog(map);
+        logProcessService.processErrorLog(map);
     }
 }

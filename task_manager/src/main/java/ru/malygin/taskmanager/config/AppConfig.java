@@ -1,13 +1,15 @@
 package ru.malygin.taskmanager.config;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.malygin.helper.model.TaskCallback;
 import ru.malygin.helper.service.QueueDeclareService;
 
-@Getter
-@RequiredArgsConstructor
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @Configuration
 public class AppConfig {
 
@@ -21,5 +23,13 @@ public class AppConfig {
         queueDeclareService.createQueue(indexer.getRoute(), indexer.getExchange());
         queueDeclareService.createQueue(searcher.getRoute(), searcher.getExchange());
         return true;
+    }
+
+    @Bean
+    protected Map<String, Class<?>> idClassMap() {
+        Map<String, Class<?>> map = new HashMap<>();
+        map.put("TaskCallback", TaskCallback.class);
+        log.info("[o] Configurate idClassMap in application");
+        return map;
     }
 }

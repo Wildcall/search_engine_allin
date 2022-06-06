@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.model.TaskState;
 import ru.malygin.taskmanager.exception.BadRequestException;
-import ru.malygin.taskmanager.model.ServiceType;
-import ru.malygin.taskmanager.model.TaskState;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
@@ -53,13 +53,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void resetTask(Task task) {
-        if (!task.hasRequiredField() || task.getId() == null) throw new IllegalArgumentException(
+    public void resetTask(Task task,
+                          TaskState state) {
+        if (!task.hasRequiredField() || task.getId() == null || state == null) throw new IllegalArgumentException(
                 "Failed to update task");
         task.setStartTime(null);
         task.setEndTime(null);
         task.setStatId(null);
-        task.setTaskState(TaskState.CREATE);
+        task.setTaskState(state);
         taskRepository.save(task);
     }
 

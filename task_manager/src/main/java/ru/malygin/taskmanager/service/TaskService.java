@@ -1,7 +1,7 @@
 package ru.malygin.taskmanager.service;
 
-import ru.malygin.taskmanager.model.ServiceType;
-import ru.malygin.taskmanager.model.TaskState;
+import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.model.TaskState;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;
@@ -14,7 +14,8 @@ public interface TaskService {
 
     void update(Task task);
 
-    void resetTask(Task task);
+    void resetTask(Task task,
+                   TaskState state);
 
     Task findById(Long id);
 

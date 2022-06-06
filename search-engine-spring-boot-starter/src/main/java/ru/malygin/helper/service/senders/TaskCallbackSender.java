@@ -1,10 +1,7 @@
 package ru.malygin.helper.service.senders;
 
-import ru.malygin.helper.model.TaskAction;
-import ru.malygin.helper.model.TaskState;
+import org.springframework.context.ApplicationListener;
+import ru.malygin.helper.model.TaskCallbackEvent;
 
-public interface CallbackSender {
-    void send(Long id,
-              TaskAction action,
-              TaskState state);
+public interface TaskCallbackSender extends ApplicationListener<TaskCallbackEvent> {
 }

@@ -22,14 +22,14 @@ public class DefaultNotificationSender implements NotificationSender {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper mapper;
-    private final SearchEngineProperties.Common.Notification notification;
+    private final SearchEngineProperties.Common.Notification nProp;
     @Value(value = "${spring.application.name}")
     private String appName;
 
     @Override
     public void send(Notification n) {
         prepareMessage(n).ifPresent(
-                message -> rabbitTemplate.send(notification.getExchange(), notification.getNotificationRoute(), message));
+                message -> rabbitTemplate.send(nProp.getExchange(), nProp.getNotificationRoute(), message));
     }
 
     private Optional<Message> prepareMessage(Notification n) {

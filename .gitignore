@@ -2,6 +2,7 @@
 /*/.run
 /*/.idea/
 /*/target/
+/*/env.txt
 /frontend/node_modules/
 /*/*.iml
 /indexer/src/test/resource/pages/

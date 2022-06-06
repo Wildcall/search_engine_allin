@@ -27,12 +27,17 @@ spring:
     password: guest
     port: 5672
   search-engine:
-    msg:
+    common:
       log:
-        close-stat: true
-        start-stat: true
+        sender: true
+      metrics:
+        sender: true
       task:
-        queue: crawler-task-queue
+        receiver: true
+        exchange: task
+        route: crawler-task-queue
+      callback:
+        sender: true
 
 logging:
   level:

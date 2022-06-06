@@ -9,43 +9,47 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import ru.malygin.helper.config.SearchEngineProperties;
-import ru.malygin.helper.model.TaskAction;
-import ru.malygin.helper.model.TaskState;
-import ru.malygin.helper.service.senders.CallbackSender;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.TaskCallbackEvent;
+import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.service.senders.TaskCallbackSender;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultCallbackSender implements CallbackSender {
+public class DefaultTaskCallbackSender implements TaskCallbackSender {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper mapper;
     private final SearchEngineProperties.Common.Callback cProp;
+    private final LogSender logSender;
 
     @Override
-    public void send(Long id,
-                     TaskAction action,
-                     TaskState state) {
-        prepareMessage(Map.of("id", id,
-                              "action", action,
-                              "state", state)).ifPresent(message ->
-                                                                 rabbitTemplate.send(cProp.getExchange(),
-                                                                                     cProp.getRoute(), message));
+    public void onApplicationEvent(TaskCallbackEvent event) {
+        TaskCallback callback = event.getCallback();
+        send(callback);
+        logSender.info("TASK CALLBACK SEND / Id: %s / Task state: %s", callback.getTaskId(), callback
+                .getState()
+                .name());
     }
 
-    private Optional<Message> prepareMessage(Map<String, Object> map) {
+    private void send(TaskCallback taskCallback) {
+        prepareMessage(taskCallback).ifPresent(
+                message -> rabbitTemplate.send(cProp.getExchange(), cProp.getRoute(), message));
+    }
+
+    private Optional<Message> prepareMessage(TaskCallback taskCallback) {
         try {
             byte[] body = mapper
-                    .writeValueAsString(map)
+                    .writeValueAsString(taskCallback)
                     .getBytes();
             return Optional.of(MessageBuilder
                                        .withBody(body)
                                        .setContentType(MessageProperties.CONTENT_TYPE_JSON)
                                        .setTimestamp(new Date(System.currentTimeMillis()))
-                                       .setHeader("__TypeId__", "Hashtable")
+                                       .setHeader("__TypeId__", "TaskCallback")
                                        .build());
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());

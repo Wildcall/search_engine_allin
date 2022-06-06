@@ -1,6 +1,6 @@
 package ru.malygin.taskmanager.service;
 
-import ru.malygin.taskmanager.model.entity.SiteStatus;
+import ru.malygin.taskmanager.model.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 

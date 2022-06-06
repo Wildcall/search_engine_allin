@@ -15,6 +15,7 @@ import ru.malygin.taskmanager.model.dto.impl.TaskDto;
 import ru.malygin.taskmanager.model.dto.view.TaskView;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -104,6 +105,28 @@ public class TaskController {
     public ResponseEntity<Long> deleteById(Authentication authentication,
                                            @PathVariable Long id) {
         Long response = taskFacade.deleteById(authentication, id);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @GetMapping(path = "/start/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @JsonView({TaskView.Response.class})
+    public ResponseEntity<BaseDto> start(Authentication authentication,
+                                                   @PathVariable Long id) {
+        BaseDto response = taskFacade.start(authentication, id);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @GetMapping(path = "/stop/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @JsonView({TaskView.Response.class})
+    public ResponseEntity<BaseDto> stop(Authentication authentication,
+                                       @PathVariable Long id) {
+        BaseDto response = taskFacade.stop(authentication, id);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

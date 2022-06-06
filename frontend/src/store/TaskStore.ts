@@ -4,7 +4,6 @@ import {TaskResponse} from "@/models/response/TaskResponse";
 import {TaskService} from "@/services/TaskService";
 import {TaskAddRequest} from "@/models/request/TaskAddRequest";
 import {TaskUpdateRequest} from "@/models/request/TaskUpdateRequest";
-import {SseService} from "@/services/SseService";
 
 export interface TaskState {
     loading: boolean
@@ -91,14 +90,16 @@ export const useTaskStore = defineStore({
             const errorStore = useErrorStore()
             this.loading = true
             TaskService.start(id)
-                .then((r) => {
-                    if (r) {
-                        const task = this.tasks
-                            .find(obj => obj.id === id) as TaskResponse
-                        task.sse = r.data
-                        task.startTime = null
-                        task.endTime = null
-                        SseService.subscribe(r.data, task.type, task)
+                .then((response) => {
+                    if (response) {
+                        const index = this.tasks.findIndex(obj => obj.id === id)
+                        if (index > -1)
+                            this.tasks[index] = response.data
+                        // const task = this.tasks.find(obj => obj.id === id) as TaskResponse
+                        // task.sse = r.data
+                        // task.startTime = null
+                        // task.endTime = null
+                        // SseService.subscribe(r.data, task.type, task)
                     }
                 })
                 .catch(error => errorStore.save(error))
@@ -110,10 +111,13 @@ export const useTaskStore = defineStore({
             const errorStore = useErrorStore()
             this.loading = true
             TaskService.stop(id)
-                .then((r) => {
-                    if (r) {
-                        const task = this.tasks.find(obj => obj.id === id) as TaskResponse
-                        task.sse = null
+                .then((response) => {
+                    if (response) {
+                        const index = this.tasks.findIndex(obj => obj.id === id)
+                        if (index > -1)
+                            this.tasks[index] = response.data
+                        // const task = this.tasks.find(obj => obj.id === id) as TaskResponse
+                        // task.sse = null
                     }
                 })
                 .catch(error => errorStore.save(error))

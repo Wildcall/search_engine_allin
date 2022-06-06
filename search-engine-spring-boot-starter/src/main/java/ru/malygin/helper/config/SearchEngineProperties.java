@@ -16,6 +16,8 @@ public class SearchEngineProperties {
         private final Log log = new Log();
         private final Notification notification = new Notification();
         private final Metrics metrics = new Metrics();
+        private final Task task = new Task();
+        private final Callback callback = new Callback();
 
         @Data
         public static class Log {
@@ -40,6 +42,20 @@ public class SearchEngineProperties {
             private Boolean receiver = false;
             private String exchange = "metrics-exchange";
             private String metricsRoute = "metrics";
+        }
+
+        @Data
+        public static class Task {
+            private Boolean receiver = false;
+            private String exchange = "task";
+            private String route = "default-task-queue";
+        }
+
+        @Data
+        public static class Callback {
+            private Boolean sender = true;
+            private String exchange = "task-callback";
+            private String route = "task-callback-queue";
         }
     }
 }

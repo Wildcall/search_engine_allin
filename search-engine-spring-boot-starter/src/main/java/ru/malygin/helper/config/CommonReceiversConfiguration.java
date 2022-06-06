@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.malygin.helper.service.DefaultQueueDeclareService;
+import ru.malygin.helper.service.receivers.TaskReceiver;
 import ru.malygin.helper.service.receivers.impl.DefaultTaskReceiver;
 
 import java.util.Map;
@@ -15,15 +17,21 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
-public class MsgReceiversConfiguration {
+public class CommonReceiversConfiguration {
 
     @Bean
+    @ConditionalOnProperty(prefix = "spring.search-engine.common.task", name = "receiver", havingValue = "true")
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "spring.search-engine.msg.task", name = "queue", havingValue = "true")
-    public DefaultTaskReceiver taskReceiver(ApplicationEventPublisher p,
-                                            ObjectMapper objectMapper,
-                                            Map<String, Class<?>> idClassMap) {
-        log.info("[*] Create TaskReceiver in starter");
+    public TaskReceiver taskReceiver(ApplicationEventPublisher p,
+                                     ObjectMapper objectMapper,
+                                     DefaultQueueDeclareService defaultQueueDeclareService,
+                                     SearchEngineProperties properties,
+                                     Map<String, Class<?>> idClassMap) {
+        SearchEngineProperties.Common.Task taskProp = properties
+                .getCommon()
+                .getTask();
+        defaultQueueDeclareService.createQueue(taskProp.getRoute(), taskProp.getExchange());
+        log.info("[*] Create DefaultTaskReceiver in starter");
         return new DefaultTaskReceiver(p, objectMapper, idClassMap);
     }
 }

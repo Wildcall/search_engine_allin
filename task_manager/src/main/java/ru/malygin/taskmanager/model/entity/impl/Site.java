@@ -4,7 +4,7 @@ import lombok.*;
 import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.SiteDto;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
-import ru.malygin.taskmanager.model.entity.SiteStatus;
+import ru.malygin.taskmanager.model.SiteStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

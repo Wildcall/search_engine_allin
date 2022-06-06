@@ -13,7 +13,6 @@ public class TaskManagerProperties {
     private Indexer indexer = new Indexer();
     private Searcher searcher = new Searcher();
 
-
     public interface ServiceQueueProperties {
         String getExchange();
 
