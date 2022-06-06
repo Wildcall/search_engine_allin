@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.malygin</groupId>
     <artifactId>notification</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>Notification service</name>
     <description>Notification service for search engine</description>
     <packaging>jar</packaging>
