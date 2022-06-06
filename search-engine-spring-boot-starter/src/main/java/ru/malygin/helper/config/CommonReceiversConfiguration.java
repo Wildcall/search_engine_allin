@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.malygin.helper.service.TaskReceiver;
+import ru.malygin.helper.service.receivers.impl.DefaultTaskReceiver;
 
 import java.util.Map;
 
@@ -20,10 +20,10 @@ public class MsgReceiversConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "spring.search-engine.msg.task", name = "queue", havingValue = "true")
-    public TaskReceiver taskReceiver(ApplicationEventPublisher p,
-                                     ObjectMapper objectMapper,
-                                     Map<String, Class<?>> idClassMap) {
+    public DefaultTaskReceiver taskReceiver(ApplicationEventPublisher p,
+                                            ObjectMapper objectMapper,
+                                            Map<String, Class<?>> idClassMap) {
         log.info("[*] Create TaskReceiver in starter");
-        return new TaskReceiver(p, objectMapper, idClassMap);
+        return new DefaultTaskReceiver(p, objectMapper, idClassMap);
     }
 }
