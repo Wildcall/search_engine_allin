@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.malygin.taskmanager.exception.BadRequestException;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 import ru.malygin.taskmanager.repository.SettingRepository;

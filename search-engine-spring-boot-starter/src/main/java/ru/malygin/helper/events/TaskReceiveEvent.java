@@ -1,7 +1,8 @@
-package ru.malygin.helper.model;
+package ru.malygin.helper.events;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
+import ru.malygin.helper.enums.TaskAction;
 
 @Getter
 public class TaskReceiveEvent extends ApplicationEvent {

@@ -10,7 +10,7 @@ import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.view.SettingView;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 
 @Slf4j

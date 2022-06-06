@@ -33,9 +33,21 @@ public class DefaultQueueDeclareService implements QueueDeclareService {
                                                .to(exchange)
                                                .with(queue.getName())
                                                .noargs());
-            log.info("[*] Binding queue '{}' and exchange '{}'", queue.getName(), exchange.getName());
+            log.info("[+] Binding queue '{}' and exchange '{}'", queue.getName(), exchange.getName());
         }
         return queue;
+    }
+
+    @Override
+    public void removeQueue(String queueName) {
+        if (queuesMap.remove(queueName) != null)
+            log.info("[-] Remove queue '{}'", queueName);
+    }
+
+    public void deleteQueue(String queueName) {
+        removeQueue(queueName);
+        if (rabbitAdmin.deleteQueue(queueName))
+            log.info("[-] Delete queue '{}'", queueName);
     }
 
     private Queue declareQueue(String queueName) {
@@ -48,7 +60,7 @@ public class DefaultQueueDeclareService implements QueueDeclareService {
         queue = new Queue(queueName, false, false, false);
         rabbitAdmin.declareQueue(queue);
         queuesMap.put(queueName, queue);
-        log.info("[*] Declare queue '{}'", queue.getName());
+        log.info("[+] Declare queue '{}'", queue.getName());
         return queue;
     }
 
@@ -62,7 +74,7 @@ public class DefaultQueueDeclareService implements QueueDeclareService {
         exchange = new DirectExchange(exchangeName, false, false);
         rabbitAdmin.declareExchange(exchange);
         exchangesMap.put(exchangeName, exchange);
-        log.info("[*] Declare exchange '{}'", exchange.getName());
+        log.info("[+] Declare exchange '{}'", exchange.getName());
         return exchange;
     }
 
@@ -87,4 +99,5 @@ public class DefaultQueueDeclareService implements QueueDeclareService {
                 .getMetrics();
         createQueue(metrics.getMetricsRoute(), metrics.getExchange());
     }
+
 }

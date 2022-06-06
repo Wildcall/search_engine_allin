@@ -6,7 +6,7 @@ import ru.malygin.taskmanager.model.dto.BaseDto;
 import ru.malygin.taskmanager.model.dto.impl.SettingDto;
 import ru.malygin.taskmanager.model.entity.BaseEntity;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 
 import javax.persistence.*;
 

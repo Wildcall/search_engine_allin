@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.util.Assert;
-import ru.malygin.helper.model.TaskAction;
-import ru.malygin.helper.model.TaskReceiveEvent;
+import ru.malygin.helper.enums.TaskAction;
+import ru.malygin.helper.events.TaskReceiveEvent;
 import ru.malygin.helper.service.receivers.TaskReceiver;
 
 import java.util.Map;

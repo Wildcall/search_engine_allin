@@ -20,7 +20,6 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public Mono<Page> save(Page page) {
-        log.info("SAVE PAGE / Code: {} / Path: {}", page.getCode(), page.getPath());
         if (page.hasRequiredField()) return pageRepository.save(page);
         return Mono.empty();
     }
@@ -28,21 +27,18 @@ public class PageServiceImpl implements PageService {
     @Override
     public Flux<Page> findAllBySiteIdAndAppUserId(Long siteId,
                                                   Long appUserId) {
-        log.info("FIND PAGES / SiteId: {} / AppUserId: {}", siteId, appUserId);
         return pageRepository.findAllBySiteIdAndAppUserId(siteId, appUserId);
     }
 
     @Override
     public Mono<Long> getCountBySiteIdAndAppUserId(Long siteId,
-                                                      Long appUserId) {
-        log.info("GET PAGES COUNT / SiteId: {} / AppUserId: {}", siteId, appUserId);
+                                                   Long appUserId) {
         return pageRepository.countPagesBySiteIdAndAppUserId(siteId, appUserId);
     }
 
     @Override
     public Mono<Void> deleteAllBySiteIdAndAppUserId(Long siteId,
                                                     Long appUserId) {
-        log.info("DELETE PAGES / SiteId: {} / AppUserId: {}", siteId, appUserId);
         return pageRepository.deleteAllBySiteIdAndAppUserId(siteId, appUserId);
     }
 }

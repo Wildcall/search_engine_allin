@@ -9,8 +9,8 @@ import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.service.CrawlerService;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.helper.model.TaskCallback;
-import ru.malygin.helper.model.TaskCallbackEvent;
-import ru.malygin.helper.model.TaskState;
+import ru.malygin.helper.events.TaskCallbackEvent;
+import ru.malygin.helper.enums.TaskState;
 import ru.malygin.helper.service.senders.LogSender;
 
 import java.net.HttpURLConnection;

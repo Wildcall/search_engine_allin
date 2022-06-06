@@ -1,6 +1,6 @@
 package ru.malygin.taskmanager.model.entity;
 
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.entity.impl.CrawlerSetting;
 import ru.malygin.taskmanager.model.entity.impl.IndexerSetting;

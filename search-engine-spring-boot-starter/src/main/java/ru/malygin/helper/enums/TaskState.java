@@ -1,4 +1,4 @@
-package ru.malygin.helper.model;
+package ru.malygin.helper.enums;
 
 import lombok.AllArgsConstructor;
 

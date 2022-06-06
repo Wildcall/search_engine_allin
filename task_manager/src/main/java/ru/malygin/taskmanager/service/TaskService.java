@@ -1,7 +1,7 @@
 package ru.malygin.taskmanager.service;
 
-import ru.malygin.helper.model.ServiceType;
-import ru.malygin.helper.model.TaskState;
+import ru.malygin.helper.enums.ServiceType;
+import ru.malygin.helper.enums.TaskState;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;

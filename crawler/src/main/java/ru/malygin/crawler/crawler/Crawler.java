@@ -10,8 +10,8 @@ import ru.malygin.crawler.model.entity.Statistic;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.crawler.service.StatisticService;
 import ru.malygin.helper.model.TaskCallback;
-import ru.malygin.helper.model.TaskCallbackEvent;
-import ru.malygin.helper.model.TaskState;
+import ru.malygin.helper.events.TaskCallbackEvent;
+import ru.malygin.helper.enums.TaskState;
 
 import java.time.LocalDateTime;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package ru.malygin.indexer.service;
 
 import org.springframework.context.event.EventListener;
-import ru.malygin.helper.model.TaskReceiveEvent;
+import ru.malygin.helper.events.TaskReceiveEvent;
 
 public interface TaskService {
 

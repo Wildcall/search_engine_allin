@@ -3,7 +3,7 @@ package ru.malygin.taskmanager.model.entity.impl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.impl.CrawlerSettingsDto;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;

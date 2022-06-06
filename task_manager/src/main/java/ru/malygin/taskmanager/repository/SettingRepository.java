@@ -1,7 +1,7 @@
 package ru.malygin.taskmanager.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.AppUser;
 import ru.malygin.taskmanager.model.entity.impl.Setting;
 

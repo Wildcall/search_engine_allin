@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.malygin.taskmanager.model.dto.ResourceSettingDto;
 import ru.malygin.taskmanager.model.dto.view.SettingView;
 import ru.malygin.taskmanager.model.entity.ResourceSetting;
-import ru.malygin.helper.model.ServiceType;
+import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.taskmanager.model.entity.impl.SearcherSetting;
 
 import javax.validation.constraints.NotBlank;

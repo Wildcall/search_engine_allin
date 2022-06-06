@@ -6,11 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
+import ru.malygin.helper.enums.TaskState;
+import ru.malygin.helper.events.TaskCallbackEvent;
 import ru.malygin.helper.model.TaskCallback;
-import ru.malygin.helper.model.TaskCallbackEvent;
-import ru.malygin.helper.model.TaskState;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.model.entity.Statistic;
+import ru.malygin.indexer.service.PageResponseListener;
 import ru.malygin.indexer.service.StatisticService;
 
 import java.time.LocalDateTime;
@@ -26,12 +27,12 @@ public final class Indexer implements Runnable {
     // init in builder
     private final StatisticService statisticService;
     private final PageParser.Builder builder;
-    private final PageFetcher pageFetcher;
+    private final PageResponseListener pageResponseListener;
     private final ApplicationEventPublisher publisher;
     // init
-    private final AtomicInteger stateCode = new AtomicInteger(0);
     private final AtomicInteger parsedPages = new AtomicInteger(0);
     private final AtomicInteger completeRails = new AtomicInteger(0);
+    private final AtomicBoolean saving = new AtomicBoolean(false);
     // components
     private PageParser pageParser;
     // init in start
@@ -40,8 +41,7 @@ public final class Indexer implements Runnable {
     private Map<Task, Indexer> currentRunningTasks;
     private Statistic statistic;
     private String sitePath;
-    private Long siteId;
-    private Long appUserId;
+    private Long pageCount;
 
 
     private static void timeOut100ms() {
@@ -53,14 +53,15 @@ public final class Indexer implements Runnable {
     }
 
     public void start(Task task,
+                      Long pageCount,
                       Map<Task, Indexer> currentRunningTasks) {
         //  @formatter:off
         this.task = task;
-        this.siteId = task.getSiteId();
-        this.appUserId = task.getAppUserId();
+        Long siteId = task.getSiteId();
+        Long appUserId = task.getAppUserId();
         this.sitePath = task.getPath();
         this.currentRunningTasks = currentRunningTasks;
-
+        this.pageCount = pageCount;
 
         this.pageParser = builder
                 .siteId(siteId)
@@ -91,20 +92,20 @@ public final class Indexer implements Runnable {
 
         changeTaskState(TaskState.START);
 
-        pageFetcher
-                .fetch(siteId, appUserId)
+        pageResponseListener
+                .listenPageResponse(task, pageCount)
                 .parallel(task.getParallelism())
                 .runOn(Schedulers.newParallel("parsePage-" + sitePath))
                 .doOnNext(page -> {
-                    if (stateCode.get() == 1 && page.notEmpty()) {
+                    if (taskState.equals(TaskState.START)) {
                         parsedPages.incrementAndGet();
                         pageParser.parsePage(page);
                     }
                 })
                 .doOnComplete(() -> {
-                    if (completeRails.incrementAndGet() == task.getParallelism()) stateCode.set(2);
+                    if (completeRails.incrementAndGet() == task.getParallelism()) saving.set(true);
                 })
-                .doOnError(throwable -> stateCode.set(5))
+                .doOnError(throwable -> changeTaskState(TaskState.ERROR))
                 .subscribe();
 
         watchDogLoop();
@@ -115,21 +116,23 @@ public final class Indexer implements Runnable {
         while (true) {
             timeOut100ms();
 
+            if (taskState.equals(TaskState.ERROR)) break;
+
             // INTERRUPT
-            if (stateCode.get() == 4) {
+            if (taskState.equals(TaskState.INTERRUPT)) {
                 saveAndPublishFinalStat();
                 break;
             }
             // SAVE
-            if (stateCode.get() == 2 && !savedProcess.get()) {
+            if (saving.get() && !savedProcess.get()) {
                 pageParser
                         .saveLemmas()
                         .doOnSubscribe(subscription -> savedProcess.set(true))
-                        .doOnComplete(() -> stateCode.set(3))
+                        .doOnComplete(() -> changeTaskState(TaskState.COMPLETE))
                         .subscribe();
             }
             // COMPLETE
-            if (stateCode.get() == 3) {
+            if (taskState.equals(TaskState.COMPLETE)) {
                 saveAndPublishFinalStat();
                 break;
             }
@@ -168,11 +171,11 @@ public final class Indexer implements Runnable {
 
         private final StatisticService statisticService;
         private final PageParser.Builder builder;
-        private final PageFetcher pageFetcher;
+        private final PageResponseListener pageResponseListener;
         private final ApplicationEventPublisher publisher;
 
         public Indexer build() {
-            return new Indexer(statisticService, builder, pageFetcher, publisher);
+            return new Indexer(statisticService, builder, pageResponseListener, publisher);
         }
     }
 }

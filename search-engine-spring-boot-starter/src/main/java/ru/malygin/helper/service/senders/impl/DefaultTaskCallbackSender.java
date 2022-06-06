@@ -10,7 +10,7 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import ru.malygin.helper.config.SearchEngineProperties;
 import ru.malygin.helper.model.TaskCallback;
-import ru.malygin.helper.model.TaskCallbackEvent;
+import ru.malygin.helper.events.TaskCallbackEvent;
 import ru.malygin.helper.service.senders.LogSender;
 import ru.malygin.helper.service.senders.TaskCallbackSender;
 

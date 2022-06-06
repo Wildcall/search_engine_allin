@@ -18,6 +18,7 @@ public class SearchEngineProperties {
         private final Metrics metrics = new Metrics();
         private final Task task = new Task();
         private final Callback callback = new Callback();
+        private final Request request = new Request();
 
         @Data
         public static class Log {
@@ -56,6 +57,14 @@ public class SearchEngineProperties {
             private Boolean sender = true;
             private String exchange = "task-callback";
             private String route = "task-callback-queue";
+        }
+
+        @Data
+        public static class Request {
+            private String exchange = "request-exchange";
+            private String pageRoute = "page-request-queue";
+            private String lemmaRoute = "lemma-request-queue";
+            private String indexRoute = "index-request-queue";
         }
     }
 }
