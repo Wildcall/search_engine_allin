@@ -24,7 +24,6 @@ import java.util.Map;
 public class MsgAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
     public ObjectMapper objectMapper() {
         log.info("[*] Create ObjectMapper in starter");
         ObjectMapper mapper = new ObjectMapper();

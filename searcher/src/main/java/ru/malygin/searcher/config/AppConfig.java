@@ -1,6 +1,5 @@
-package ru.malygin.indexer.config;
+package ru.malygin.searcher.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -14,8 +13,8 @@ import ru.malygin.helper.service.DefaultTempListenerContainerFactory;
 import ru.malygin.helper.service.cross.DataReceiver;
 import ru.malygin.helper.service.senders.LogSender;
 import ru.malygin.helper.service.senders.impl.DefaultDataReceiver;
-import ru.malygin.indexer.model.Page;
-import ru.malygin.indexer.model.Task;
+import ru.malygin.searcher.model.Task;
+import ru.malygin.searcher.model.entity.Page;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,21 +46,15 @@ public class AppConfig {
     }
 
     @Bean
-    public DataReceiver dateReceiver(RabbitTemplate rabbitTemplate,
-                                     LogSender logSender,
-                                     DefaultTempListenerContainerFactory defaultTempListenerContainerFactory,
-                                     ObjectMapper objectMapper,
-                                     SearchEngineProperties properties) {
-        log.info("[o] Create DefaultDataReceiver in application");
-        return new DefaultDataReceiver(rabbitTemplate, logSender, defaultTempListenerContainerFactory, objectMapper,
-                                       properties);
+    public DataReceiver resourceRequestSender(RabbitTemplate rabbitTemplate,
+                                              LogSender logSender) {
+        return new DefaultDataReceiver(rabbitTemplate, logSender);
     }
 
     @Bean
     public DefaultTempListenerContainerFactory defaultTempListenerContainerFactory(SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory,
                                                                                    DefaultQueueDeclareService defaultQueueDeclareService) {
         RabbitListenerEndpointRegistry registry = new RabbitListenerEndpointRegistry();
-        log.info("[o] Create DefaultTempListenerContainerFactory in application");
         return new DefaultTempListenerContainerFactory(simpleRabbitListenerContainerFactory, registry,
                                                        defaultQueueDeclareService);
     }

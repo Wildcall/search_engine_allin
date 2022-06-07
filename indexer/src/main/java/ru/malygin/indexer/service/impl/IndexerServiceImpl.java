@@ -6,10 +6,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.enums.TaskState;
 import ru.malygin.helper.events.TaskCallbackEvent;
-import ru.malygin.helper.model.PageRequest;
 import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.requests.DataRequest;
+import ru.malygin.helper.service.cross.DataReceiver;
 import ru.malygin.helper.service.senders.LogSender;
-import ru.malygin.helper.service.senders.impl.DefaultPageRequestSender;
 import ru.malygin.indexer.indexer.Indexer;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.service.IndexService;
@@ -30,7 +30,7 @@ public class IndexerServiceImpl implements IndexerService {
     private final Indexer.Builder indexerBuilder;
     private final LogSender logSender;
     private final ApplicationEventPublisher publisher;
-    private final DefaultPageRequestSender defaultPageRequestSender;
+    private final DataReceiver dataReceiver;
 
     @Override
     public void start(Task task) {
@@ -48,8 +48,10 @@ public class IndexerServiceImpl implements IndexerService {
             return;
         }
 
-        Long pageCount = resourceAvailable(task);
-        if (pageCount < 0) {
+        DataRequest pageDataRequest = dataReceiver.createPageDataRequest(task.getId(),
+                                           task.getSiteId(),
+                                           task.getAppUserId());
+        if (!dataReceiver.requestData(pageDataRequest)) {
             publishErrorCallbackEvent(task, 6003);
             return;
         }
@@ -60,7 +62,7 @@ public class IndexerServiceImpl implements IndexerService {
                 .then(indexService.deleteAllBySiteIdAndAppUserId(siteId, appUserId))
                 .doOnSuccess(sink -> {
                     Indexer indexer = indexerBuilder.build();
-                    indexer.start(task, pageCount, currentRunningTasks);
+                    indexer.start(task, pageDataRequest, currentRunningTasks);
                     currentRunningTasks.put(task, indexer);
                 })
                 .subscribe();
@@ -75,11 +77,6 @@ public class IndexerServiceImpl implements IndexerService {
         }
         indexer.stop();
         currentRunningTasks.remove(task);
-    }
-
-    private Long resourceAvailable(Task task) {
-        PageRequest pageRequest = new PageRequest(task.getSiteId(), task.getId(), task.getAppUserId());
-        return defaultPageRequestSender.sendPageRequest(pageRequest);
     }
 
     private void publishErrorCallbackEvent(Task task,

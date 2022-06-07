@@ -10,8 +10,6 @@ import ru.malygin.indexer.model.entity.Index;
 import ru.malygin.indexer.repository.IndexRepository;
 import ru.malygin.indexer.service.IndexService;
 
-import java.util.List;
-
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -37,9 +35,9 @@ public class IndexServiceImpl implements IndexService {
         return indexRepository.deleteAllBySiteIdAndAppUserId(siteId, appUserId);
     }
 
-    public Mono<Void> saveAll(List<Index> indexes) {
-        return indexRepository
-                .saveAll(indexes)
-                .then();
+    @Override
+    public Mono<Long> getCountBySiteIdAndAppUserId(Long siteId,
+                                                   Long appUserId) {
+        return indexRepository.countIndexBySiteIdAndAppUserId(siteId, appUserId);
     }
 }

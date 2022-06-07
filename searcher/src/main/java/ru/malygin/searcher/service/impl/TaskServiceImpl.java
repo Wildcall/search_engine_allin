@@ -1,4 +1,4 @@
-package ru.malygin.indexer.service.impl;
+package ru.malygin.searcher.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +7,8 @@ import ru.malygin.helper.enums.TaskAction;
 import ru.malygin.helper.events.TaskReceiveEvent;
 import ru.malygin.helper.service.TaskService;
 import ru.malygin.helper.service.senders.LogSender;
-import ru.malygin.indexer.model.Task;
-import ru.malygin.indexer.service.IndexerService;
+import ru.malygin.searcher.model.Task;
+import ru.malygin.searcher.service.SearcherService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,7 +16,7 @@ import ru.malygin.indexer.service.IndexerService;
 public class TaskServiceImpl implements TaskService {
 
     private final LogSender logSender;
-    private final IndexerService indexerService;
+    private final SearcherService searcherService;
 
     @Override
     public void process(TaskReceiveEvent event) {
@@ -24,10 +24,10 @@ public class TaskServiceImpl implements TaskService {
         Task task = (Task) event.getTask();
         logSender.info("TASK RECEIVE / Id: %s / Action: %s", task.getId(), action.name());
         if (action.equals(TaskAction.START)) {
-            indexerService.start(task);
+            searcherService.start(task);
         }
         if (action.equals(TaskAction.STOP)) {
-            indexerService.stop(task);
+            searcherService.stop(task);
         }
     }
 

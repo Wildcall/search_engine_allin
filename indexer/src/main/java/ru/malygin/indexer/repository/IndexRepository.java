@@ -12,4 +12,7 @@ public interface IndexRepository extends ReactiveCrudRepository<Index, Long> {
 
     Mono<Void> deleteAllBySiteIdAndAppUserId(Long siteId,
                                              Long appUserId);
+
+    Mono<Long> countIndexBySiteIdAndAppUserId(Long siteId,
+                                              Long appUserId);
 }

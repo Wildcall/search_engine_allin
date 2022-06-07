@@ -12,4 +12,7 @@ public interface LemmaRepository extends ReactiveCrudRepository<Lemma, Long> {
 
     Mono<Void> deleteAllBySiteIdAndAppUserId(Long siteId,
                                              Long appUserId);
+
+    Mono<Long> countLemmaBySiteIdAndAppUserId(Long siteId,
+                                              Long appUserId);
 }

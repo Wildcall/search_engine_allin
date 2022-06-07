@@ -21,6 +21,18 @@ spring:
     user: ${DATABASE_USER}
     password: ${DATABASE_PASS}
     url: jdbc:${DATABASE_URL}
+  search-engine:
+    common:
+      log:
+        sender: true
+      metrics:
+        sender: true
+      task:
+        receiver: true
+        exchange: task
+        route: searcher-task-queue
+      callback:
+        sender: true
 
 logging:
   level:
@@ -29,8 +41,3 @@ logging:
       springframework:
         web: INFO
 #       r2dbc: DEBUG
-
-rabbit:
-  queues:
-    task-queue: searcher-task-queue
-    log-queue: log-queue

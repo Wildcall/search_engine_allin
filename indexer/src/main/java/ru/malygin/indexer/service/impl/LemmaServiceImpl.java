@@ -36,4 +36,10 @@ public class LemmaServiceImpl implements LemmaService {
                                                     Long appUserId) {
         return lemmaRepository.deleteAllBySiteIdAndAppUserId(siteId, appUserId);
     }
+
+    @Override
+    public Mono<Long> getCountBySiteIdAndAppUserId(Long siteId,
+                                                   Long appUserId) {
+        return lemmaRepository.countLemmaBySiteIdAndAppUserId(siteId, appUserId);
+    }
 }

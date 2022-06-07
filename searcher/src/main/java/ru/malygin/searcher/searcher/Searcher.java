@@ -3,6 +3,7 @@ package ru.malygin.searcher.searcher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
 import ru.malygin.searcher.model.Task;
@@ -28,6 +29,7 @@ public class Searcher implements Runnable {
     private final PageService pageService;
     private final LemmaService lemmaService;
     private final IndexService indexService;
+    private final ApplicationEventPublisher publisher;
     // init
     private final AtomicInteger stateCode = new AtomicInteger(0);
 
@@ -48,6 +50,9 @@ public class Searcher implements Runnable {
     private Statistic statistic;
     private Long siteId;
     private Long appUserId;
+    private Long pageCount;
+    private Long lemmaCount;
+    private Long indexCount;
 
     private static void timeOut100ms() {
         try {
@@ -58,12 +63,18 @@ public class Searcher implements Runnable {
     }
 
     public void start(Task task,
+                      Long pageCount,
+                      Long lemmaCount,
+                      Long indexCount,
                       Map<Task, Searcher> currentRunningTasks) {
         //  @formatter:off
         this.task = task;
         this.siteId = task.getSiteId();
         this.appUserId = task.getAppUserId();
         this.currentRunningTasks = currentRunningTasks;
+        this.pageCount = pageCount;
+        this.lemmaCount = lemmaCount;
+        this.indexCount = indexCount;
 
         this.statistic = new Statistic();
         this.statistic.setSiteId(siteId);
@@ -180,9 +191,10 @@ public class Searcher implements Runnable {
         private final PageService pageService;
         private final LemmaService lemmaService;
         private final IndexService indexService;
+        private final ApplicationEventPublisher publisher;
 
         public Searcher build() {
-            return new Searcher(fetcher, statisticService, pageService, lemmaService, indexService);
+            return new Searcher(fetcher, statisticService, pageService, lemmaService, indexService, publisher);
         }
     }
 }

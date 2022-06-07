@@ -9,9 +9,11 @@ import reactor.core.scheduler.Schedulers;
 import ru.malygin.helper.enums.TaskState;
 import ru.malygin.helper.events.TaskCallbackEvent;
 import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.requests.DataRequest;
+import ru.malygin.helper.service.cross.DataReceiver;
+import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.model.entity.Statistic;
-import ru.malygin.indexer.service.PageResponseListener;
 import ru.malygin.indexer.service.StatisticService;
 
 import java.time.LocalDateTime;
@@ -27,7 +29,7 @@ public final class Indexer implements Runnable {
     // init in builder
     private final StatisticService statisticService;
     private final PageParser.Builder builder;
-    private final PageResponseListener pageResponseListener;
+    private final DataReceiver dataReceiver;
     private final ApplicationEventPublisher publisher;
     // init
     private final AtomicInteger parsedPages = new AtomicInteger(0);
@@ -41,7 +43,7 @@ public final class Indexer implements Runnable {
     private Map<Task, Indexer> currentRunningTasks;
     private Statistic statistic;
     private String sitePath;
-    private Long pageCount;
+    private DataRequest pageDataRequest;
 
 
     private static void timeOut100ms() {
@@ -53,7 +55,7 @@ public final class Indexer implements Runnable {
     }
 
     public void start(Task task,
-                      Long pageCount,
+                      DataRequest pageDataRequest,
                       Map<Task, Indexer> currentRunningTasks) {
         //  @formatter:off
         this.task = task;
@@ -61,7 +63,7 @@ public final class Indexer implements Runnable {
         Long appUserId = task.getAppUserId();
         this.sitePath = task.getPath();
         this.currentRunningTasks = currentRunningTasks;
-        this.pageCount = pageCount;
+        this.pageDataRequest = pageDataRequest;
 
         this.pageParser = builder
                 .siteId(siteId)
@@ -92,8 +94,8 @@ public final class Indexer implements Runnable {
 
         changeTaskState(TaskState.START);
 
-        pageResponseListener
-                .listenPageResponse(task, pageCount)
+        dataReceiver
+                .receiveData(pageDataRequest, Page.class)
                 .parallel(task.getParallelism())
                 .runOn(Schedulers.newParallel("parsePage-" + sitePath))
                 .doOnNext(page -> {
@@ -171,11 +173,11 @@ public final class Indexer implements Runnable {
 
         private final StatisticService statisticService;
         private final PageParser.Builder builder;
-        private final PageResponseListener pageResponseListener;
+        private final DataReceiver dataReceiver;
         private final ApplicationEventPublisher publisher;
 
         public Indexer build() {
-            return new Indexer(statisticService, builder, pageResponseListener, publisher);
+            return new Indexer(statisticService, builder, dataReceiver, publisher);
         }
     }
 }

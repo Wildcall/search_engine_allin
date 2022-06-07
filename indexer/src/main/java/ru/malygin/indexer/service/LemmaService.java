@@ -15,4 +15,7 @@ public interface LemmaService {
 
     Mono<Void> deleteAllBySiteIdAndAppUserId(Long siteId,
                                              Long appUserId);
+
+    Mono<Long> getCountBySiteIdAndAppUserId(Long siteId,
+                                              Long appUserId);
 }

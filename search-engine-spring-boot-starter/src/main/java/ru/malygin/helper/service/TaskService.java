@@ -1,4 +1,4 @@
-package ru.malygin.crawler.service;
+package ru.malygin.helper.service;
 
 import org.springframework.context.event.EventListener;
 import ru.malygin.helper.events.TaskReceiveEvent;

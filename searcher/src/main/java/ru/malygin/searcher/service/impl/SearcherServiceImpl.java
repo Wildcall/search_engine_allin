@@ -1,12 +1,18 @@
 package ru.malygin.searcher.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import ru.malygin.logsenderspringbootstarter.service.LogSender;
+import ru.malygin.helper.config.SearchEngineProperties;
+import ru.malygin.helper.enums.TaskState;
+import ru.malygin.helper.events.TaskCallbackEvent;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.model.requests.DataRequest;
+import ru.malygin.helper.service.cross.DataReceiver;
+import ru.malygin.helper.service.senders.LogSender;
 import ru.malygin.searcher.model.SearchResponse;
 import ru.malygin.searcher.model.Task;
-import ru.malygin.searcher.model.TaskAction;
 import ru.malygin.searcher.searcher.Searcher;
 import ru.malygin.searcher.searcher.util.AlphabetType;
 import ru.malygin.searcher.searcher.util.Lemmantisator;
@@ -31,15 +37,9 @@ public class SearcherServiceImpl implements SearcherService {
     private final IndexService indexService;
     private final Searcher.Builder builder;
     private final LogSender logSender;
-
-    @Override
-    public void process(Task task,
-                        TaskAction action) {
-        if (action.equals(TaskAction.START))
-            this.start(task);
-        if (action.equals(TaskAction.STOP))
-            this.stop(task);
-    }
+    private final SearchEngineProperties properties;
+    private final ApplicationEventPublisher publisher;
+    private final DataReceiver dataReceiver;
 
     public void start(Task task) {
         Long siteId = task.getSiteId();
@@ -47,12 +47,30 @@ public class SearcherServiceImpl implements SearcherService {
 
         //  @formatter:off
         if (currentRunningTasks.get(task) != null) {
-            logSender.error("SEARCHER / Code: 4001");
+            publishErrorCallbackEvent(task, 6001);
             return;
         }
 
         if (currentRunningTasks.keySet().stream().anyMatch(t -> t.getPath().equalsIgnoreCase(task.getPath()))) {
-            logSender.error("SEARCHER / Code: 4002");
+            publishErrorCallbackEvent(task, 6002);
+            return;
+        }
+
+        Long pageCount = pageResourceAvailable(task);
+        if (pageCount < 0) {
+            publishErrorCallbackEvent(task, 6003);
+            return;
+        }
+
+        Long lemmaCount = lemmaResourceAvailable(task);
+        if (lemmaCount < 0) {
+            publishErrorCallbackEvent(task, 6003);
+            return;
+        }
+
+        Long indexCount = indexResourceAvailable(task);
+        if (indexCount < 0) {
+            publishErrorCallbackEvent(task, 6003);
             return;
         }
         //  @formatter:on
@@ -63,11 +81,8 @@ public class SearcherServiceImpl implements SearcherService {
                 .then(indexService.deleteAllBySiteIdAndAppUserId(siteId, appUserId))
                 .doOnSuccess(sink -> {
                     Searcher searcher = builder.build();
-                    searcher.start(task, currentRunningTasks);
+                    searcher.start(task, pageCount, lemmaCount, indexCount, currentRunningTasks);
                     currentRunningTasks.put(task, searcher);
-                    logSender.info("SEARCHER / Action: start / TaskId: {} / Path: {} / SiteId: {} / AppUserId: {}",
-                                   task.getId(),
-                                   task.getPath(), task.getSiteId(), task.getAppUserId());
                 })
                 .subscribe();
     }
@@ -75,13 +90,44 @@ public class SearcherServiceImpl implements SearcherService {
     public void stop(Task task) {
         Searcher searcher = currentRunningTasks.get(task);
         if (searcher == null) {
-            logSender.error("SEARCHER / Code: 4004");
+            publishErrorCallbackEvent(task, 6004);
             return;
         }
         searcher.stop();
         currentRunningTasks.remove(task);
-        logSender.info("SEARCHER / Action: stop / TaskId: {} / Path: {} / SiteId: {} / AppUserId: {}", task.getId(),
-                       task.getPath(), task.getSiteId(), task.getAppUserId());
+    }
+
+    private Long pageResourceAvailable(Task task) {
+        DataRequest dataRequest = new DataRequest(task.getSiteId(), task.getId(), task.getAppUserId());
+        SearchEngineProperties.Common.Request request = properties
+                .getCommon()
+                .getRequest();
+        return dataReceiver.requestData(dataRequest, request.getExchange(),
+                                        request.getPageRoute());
+    }
+
+    private Long lemmaResourceAvailable(Task task) {
+        DataRequest dataRequest = new DataRequest(task.getSiteId(), task.getId(), task.getAppUserId());
+        SearchEngineProperties.Common.Request request = properties
+                .getCommon()
+                .getRequest();
+        return dataReceiver.requestData(dataRequest, request.getExchange(),
+                                        request.getLemmaRoute());
+    }
+
+    private Long indexResourceAvailable(Task task) {
+        DataRequest dataRequest = new DataRequest(task.getSiteId(), task.getId(), task.getAppUserId());
+        SearchEngineProperties.Common.Request request = properties
+                .getCommon()
+                .getRequest();
+        return dataReceiver.requestData(dataRequest, request.getExchange(),
+                                        request.getIndexRoute());
+    }
+
+    private void publishErrorCallbackEvent(Task task,
+                                           int code) {
+        logSender.error("SEARCHER ERROR / Id: %s / Code: %s", task.getId(), code);
+        publisher.publishEvent(new TaskCallbackEvent(new TaskCallback(task.getId(), TaskState.ERROR, null, null)));
     }
 
 
