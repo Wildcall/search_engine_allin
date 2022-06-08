@@ -23,7 +23,6 @@ public class SearchEngineProperties {
         @Data
         public static class Log {
             private Boolean sender = false;
-            private Boolean receiver = false;
             private String exchange = "log-exchange";
             private String errorRoute = "error";
             private String infoRoute = "info";
@@ -32,7 +31,6 @@ public class SearchEngineProperties {
         @Data
         public static class Notification {
             private Boolean sender = false;
-            private Boolean receiver = false;
             private String exchange = "notification-exchange";
             private String notificationRoute = "notification";
         }
@@ -40,21 +38,18 @@ public class SearchEngineProperties {
         @Data
         public static class Metrics {
             private Boolean sender = false;
-            private Boolean receiver = false;
             private String exchange = "metrics-exchange";
             private String metricsRoute = "metrics";
         }
 
         @Data
         public static class Task {
-            private Boolean receiver = false;
             private String exchange = "task";
             private String route = "default-task-queue";
         }
 
         @Data
         public static class Callback {
-            private Boolean sender = true;
             private String exchange = "task-callback";
             private String route = "task-callback-queue";
         }

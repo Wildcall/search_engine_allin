@@ -5,7 +5,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.Notification;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.senders.LogSender;
 
 import java.util.List;
 import java.util.Map;

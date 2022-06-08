@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.Notification;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.senders.LogSender;
 import ru.malygin.notification.service.NotificationService;
 
 import static ru.malygin.notification.service.NotificationServiceType.SMS;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.malygin.helper.enums.ServiceType;
 import ru.malygin.helper.enums.TaskAction;
 import ru.malygin.helper.enums.TaskState;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.senders.LogSender;
 import ru.malygin.taskmanager.config.TaskManagerProperties;
 import ru.malygin.taskmanager.exception.BadRequestException;
 import ru.malygin.taskmanager.facade.TaskFacade;

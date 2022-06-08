@@ -34,7 +34,7 @@ public class TaskSenderServiceImpl implements TaskSenderService {
                 Message message = MessageBuilder
                         .withBody(body)
                         .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                        .setHeader("__TypeId__", "Hashtable")
+                        .setHeader("__TypeId__", "NodeTask")
                         .setHeader("action", action)
                         .build();
                 rabbitTemplate.send(serviceQueueProperties.getExchange(),

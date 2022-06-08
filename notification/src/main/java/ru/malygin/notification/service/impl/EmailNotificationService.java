@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import ru.malygin.helper.model.Notification;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.senders.LogSender;
 import ru.malygin.notification.config.TemplateConfig;
 import ru.malygin.notification.service.NotificationService;
 

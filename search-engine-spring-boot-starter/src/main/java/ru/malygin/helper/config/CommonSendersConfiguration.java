@@ -4,19 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.malygin.helper.senders.LogSender;
+import ru.malygin.helper.senders.MetricsSender;
+import ru.malygin.helper.senders.NotificationSender;
+import ru.malygin.helper.senders.TaskCallbackSender;
+import ru.malygin.helper.senders.impl.DefaultLogSender;
+import ru.malygin.helper.senders.impl.DefaultMetricsSender;
+import ru.malygin.helper.senders.impl.DefaultNotificationSender;
+import ru.malygin.helper.senders.impl.DefaultTaskCallbackSender;
 import ru.malygin.helper.service.DefaultQueueDeclareService;
-import ru.malygin.helper.service.senders.LogSender;
-import ru.malygin.helper.service.senders.MetricsSender;
-import ru.malygin.helper.service.senders.NotificationSender;
-import ru.malygin.helper.service.senders.TaskCallbackSender;
-import ru.malygin.helper.service.senders.impl.DefaultLogSender;
-import ru.malygin.helper.service.senders.impl.DefaultMetricsSender;
-import ru.malygin.helper.service.senders.impl.DefaultNotificationSender;
-import ru.malygin.helper.service.senders.impl.DefaultTaskCallbackSender;
+import ru.malygin.helper.service.TaskReceiver;
 
 import static ru.malygin.helper.config.SearchEngineProperties.Common.Log;
 
@@ -72,19 +74,18 @@ public class CommonSendersConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "spring.search-engine.common.callback", name = "sender", havingValue = "true")
-    @ConditionalOnMissingBean
-    public TaskCallbackSender callbackSender(RabbitTemplate r,
-                                             ObjectMapper m,
-                                             DefaultQueueDeclareService defaultQueueDeclareService,
-                                             SearchEngineProperties properties,
-                                             LogSender logSender) {
+    @ConditionalOnBean(TaskReceiver.class)
+    public TaskCallbackSender taskCallbackSender(RabbitTemplate r,
+                                                 ObjectMapper m,
+                                                 DefaultQueueDeclareService defaultQueueDeclareService,
+                                                 SearchEngineProperties properties,
+                                                 LogSender logSender) {
         SearchEngineProperties.Common.Callback callback = properties
                 .getCommon()
                 .getCallback();
         defaultQueueDeclareService.createQueue(callback.getRoute(), callback.getExchange());
         DefaultTaskCallbackSender defaultCallbackSender = new DefaultTaskCallbackSender(r, m, callback, logSender);
-        log.info("[*] Create defaultQueueDeclareService in starter");
+        log.info("[*] Create DefaultTaskCallbackSender in starter");
         return defaultCallbackSender;
     }
 }

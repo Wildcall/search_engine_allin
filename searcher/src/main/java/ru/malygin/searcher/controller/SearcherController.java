@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import ru.malygin.searcher.model.SearchResponse;
-import ru.malygin.searcher.service.SearcherService;
+import ru.malygin.searcher.service.impl.SearcherService;
 
 @Slf4j
 @RestController

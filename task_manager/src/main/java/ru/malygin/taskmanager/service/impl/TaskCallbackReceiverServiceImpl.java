@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.malygin.helper.model.TaskCallback;
 import ru.malygin.helper.enums.TaskState;
-import ru.malygin.helper.service.senders.LogSender;
+import ru.malygin.helper.senders.LogSender;
 import ru.malygin.taskmanager.model.SiteStatus;
 import ru.malygin.taskmanager.model.entity.impl.Site;
 import ru.malygin.taskmanager.model.entity.impl.Task;

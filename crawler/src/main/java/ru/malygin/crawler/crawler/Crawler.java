@@ -2,16 +2,15 @@ package ru.malygin.crawler.crawler;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import ru.malygin.crawler.model.Task;
 import ru.malygin.crawler.model.entity.Page;
 import ru.malygin.crawler.model.entity.Statistic;
 import ru.malygin.crawler.service.PageService;
 import ru.malygin.crawler.service.StatisticService;
-import ru.malygin.helper.model.TaskCallback;
-import ru.malygin.helper.events.TaskCallbackEvent;
 import ru.malygin.helper.enums.TaskState;
+import ru.malygin.helper.model.TaskCallback;
+import ru.malygin.helper.senders.TaskCallbackSender;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -36,7 +35,7 @@ public final class Crawler implements Runnable {
     // init in builder
     private final StatisticService statisticService;
     private final PageService pageService;
-    private final ApplicationEventPublisher publisher;
+    private final TaskCallbackSender taskCallbackSender;
     // init
     private final Queue<Page> pagesQueue = new ConcurrentLinkedQueue<>();
     private final Queue<String> linksQueue = new ConcurrentLinkedQueue<>();
@@ -170,8 +169,9 @@ public final class Crawler implements Runnable {
     private void changeTaskState(TaskState state) {
         this.taskState = state;
         setActualStatistics();
-        publisher.publishEvent(new TaskCallbackEvent(
-                new TaskCallback(task.getId(), taskState, statistic.getStartTime(), statistic.getEndTime())));
+        TaskCallback callback = new TaskCallback(task.getId(), taskState, statistic.getStartTime(),
+                                                 statistic.getEndTime());
+        taskCallbackSender.send(callback);
     }
 
     @Component
@@ -180,10 +180,10 @@ public final class Crawler implements Runnable {
 
         private final StatisticService statisticService;
         private final PageService pageService;
-        private final ApplicationEventPublisher publisher;
+        private final TaskCallbackSender taskCallbackSender;
 
         public Crawler build() {
-            return new Crawler(statisticService, pageService, publisher);
+            return new Crawler(statisticService, pageService, taskCallbackSender);
         }
     }
 }

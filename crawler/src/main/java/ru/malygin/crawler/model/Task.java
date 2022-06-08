@@ -3,13 +3,14 @@ package ru.malygin.crawler.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.malygin.helper.model.NodeTask;
 
 import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Task implements Serializable {
+public class Task implements NodeTask, Serializable {
 
     private Long id;
     private Long appUserId;

@@ -6,9 +6,3 @@ spring:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     port: ${RABBITMQ_PORT}
-  search-engine:
-    common:
-      log:
-        receiver: true
-      metrics:
-        receiver: true

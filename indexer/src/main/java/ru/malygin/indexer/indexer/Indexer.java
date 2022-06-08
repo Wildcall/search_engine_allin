@@ -3,14 +3,13 @@ package ru.malygin.indexer.indexer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
 import ru.malygin.helper.enums.TaskState;
-import ru.malygin.helper.events.TaskCallbackEvent;
 import ru.malygin.helper.model.TaskCallback;
 import ru.malygin.helper.model.requests.DataRequest;
-import ru.malygin.helper.service.cross.DataReceiver;
+import ru.malygin.helper.senders.TaskCallbackSender;
+import ru.malygin.helper.service.DataReceiver;
 import ru.malygin.indexer.model.Page;
 import ru.malygin.indexer.model.Task;
 import ru.malygin.indexer.model.entity.Statistic;
@@ -30,7 +29,7 @@ public final class Indexer implements Runnable {
     private final StatisticService statisticService;
     private final PageParser.Builder builder;
     private final DataReceiver dataReceiver;
-    private final ApplicationEventPublisher publisher;
+    private final TaskCallbackSender taskCallbackSender;
     // init
     private final AtomicInteger parsedPages = new AtomicInteger(0);
     private final AtomicInteger completeRails = new AtomicInteger(0);
@@ -120,9 +119,8 @@ public final class Indexer implements Runnable {
 
             if (taskState.equals(TaskState.ERROR)) break;
 
-            // INTERRUPT
             if (taskState.equals(TaskState.INTERRUPT)) {
-                saveAndPublishFinalStat();
+                saveFinalStat();
                 break;
             }
             // SAVE
@@ -133,16 +131,16 @@ public final class Indexer implements Runnable {
                         .doOnComplete(() -> changeTaskState(TaskState.COMPLETE))
                         .subscribe();
             }
-            // COMPLETE
+
             if (taskState.equals(TaskState.COMPLETE)) {
-                saveAndPublishFinalStat();
+                saveFinalStat();
                 break;
             }
         }
         currentRunningTasks.remove(task);
     }
 
-    private void saveAndPublishFinalStat() {
+    private void saveFinalStat() {
         setActualStatistics();
         statisticService
                 .save(statistic)
@@ -163,8 +161,9 @@ public final class Indexer implements Runnable {
     private void changeTaskState(TaskState state) {
         this.taskState = state;
         setActualStatistics();
-        publisher.publishEvent(new TaskCallbackEvent(
-                new TaskCallback(task.getId(), taskState, statistic.getStartTime(), statistic.getEndTime())));
+        TaskCallback callback = new TaskCallback(task.getId(), taskState, statistic.getStartTime(),
+                                                 statistic.getEndTime());
+        taskCallbackSender.send(callback);
     }
 
     @Component
@@ -174,10 +173,10 @@ public final class Indexer implements Runnable {
         private final StatisticService statisticService;
         private final PageParser.Builder builder;
         private final DataReceiver dataReceiver;
-        private final ApplicationEventPublisher publisher;
+        private final TaskCallbackSender taskCallbackSender;
 
         public Indexer build() {
-            return new Indexer(statisticService, builder, dataReceiver, publisher);
+            return new Indexer(statisticService, builder, dataReceiver, taskCallbackSender);
         }
     }
 }

@@ -33,11 +33,7 @@ spring:
       metrics:
         sender: true
       task:
-        receiver: true
-        exchange: task
         route: crawler-task-queue
-      callback:
-        sender: true
 
 logging:
   level:
